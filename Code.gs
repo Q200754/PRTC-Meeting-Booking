@@ -50,7 +50,7 @@ function doPost(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// 1. ฟังก์ชันแก้ไขข้อมูลการจอง (ไม่ส่ง LINE)
+// 1. ฟังก์ชันแก้ไขข้อมูลการจอง (ไม่เด้ง LINE)
 function editBookingData(payload) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = ss.getSheetByName(SHEET_NAME);
@@ -72,7 +72,7 @@ function editBookingData(payload) {
   return false;
 }
 
-// 2. ฟังก์ชันอัปโหลดรูปภาพลง Google Drive บันทึกลงคอลัมน์ K (ไม่ส่ง LINE)
+// 2. ฟังก์ชันอัปโหลดรูปภาพลง Google Drive บันทึกลงคอลัมน์ K (ไม่เด้ง LINE)
 function uploadMeetingImageToColumnK(payload) {
   try {
     const id = payload.id;
@@ -113,7 +113,7 @@ function uploadMeetingImageToColumnK(payload) {
   }
 }
 
-// 3. ฟังก์ชันเปลี่ยนสถานะ (อนุมัติ/ไม่อนุมัติ) -> ส่งการแจ้งเตือนเข้า LINE!
+// 3. ฟังก์ชันเปลี่ยนสถานะ (อนุมัติ/ไม่อนุมัติ) -> เด้งการแจ้งเตือนเข้า LINE!
 function updateBookingStatus(id, status) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = ss.getSheetByName(SHEET_NAME);
@@ -124,7 +124,6 @@ function updateBookingStatus(id, status) {
       sheet.getRange(i + 1, 9).setValue(status);
       sheet.getRange(i + 1, 12).setValue(new Date());
 
-      // เด้งเข้า LINE เฉพาะตอนอนุมัติ/ไม่อนุมัติ
       if (status === "อนุมัติ") sendApproveLine(data[i]);
       if (status === "ไม่อนุมัติ") sendRejectLine(data[i]);
 
@@ -135,7 +134,7 @@ function updateBookingStatus(id, status) {
 }
 
 // ======================================
-// ฟังก์ชันจัดการ LINE Notification
+// LINE Notification Functions
 // ======================================
 const THAI_MONTHS = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
 
