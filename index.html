@@ -10,13 +10,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- โค้ดแก้ปัญหา Safari / iOS ป้องกันการโดนบล็อก iFrame -->
-  <script>
-    if (window.top !== window.self) {
-      window.top.location.href = window.self.location.href;
-    }
-  </script>
-
   <style>
     :root {
       --ink:        #1E2A44;
@@ -349,8 +342,8 @@
     <div class="success" id="result"></div>
     <div class="error" id="errorResult"></div>
 
-    <!-- ลิงก์ไปหน้า Admin Dashboard -->
-    <a class="admin-link" href="https://script.google.com/macros/s/AKfycbyCILkpE3hCwf3xpqmf5qn5A47NvPfiCafH6sKBipHHWgvJNNWynueLD0QprDqaSgvMYg/exec?page=admin">
+    <!-- ปุ่มสลับไปหน้า admin.html บนเว็บตัวเอง -->
+    <a class="admin-link" href="admin.html">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
       สำหรับผู้ดูแลระบบ · ไปหน้า Admin Dashboard
     </a>
@@ -360,6 +353,9 @@
 
 <script>
 
+// ⚠️ Web App URL ของ Google Apps Script ที่ได้จากการ Deploy
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyCILkpE3hCwf3xpqmf5qn5A47NvPfiCafH6sKBipHHWgvJNNWynueLD0QprDqaSgvMYg/exec";
+
 function submitForm(){
   const btn = document.getElementById("submitBtn");
   const resultBox = document.getElementById("result");
@@ -368,31 +364,39 @@ function submitForm(){
   resultBox.classList.remove("show");
   errorBox.classList.remove("show");
 
-  const name = document.getElementById("name").value.trim();
-  const position = document.getElementById("position").value.trim();
-  const room = document.getElementById("room").value.trim();
-  const building = document.getElementById("building").value;
-  const date = document.getElementById("date").value;
-  const startTime = document.getElementById("startTime").value;
-  const people = document.getElementById("people").value;
-  const type = document.getElementById("type").value;
+  const payload = {
+    name: document.getElementById("name").value.trim(),
+    position: document.getElementById("position").value.trim(),
+    room: document.getElementById("room").value.trim(),
+    building: document.getElementById("building").value,
+    date: document.getElementById("date").value,
+    startTime: document.getElementById("startTime").value,
+    people: document.getElementById("people").value,
+    type: document.getElementById("type").value
+  };
 
-  // ตรวจสอบข้อมูลเบื้องต้นก่อนส่ง
-  if(!name || !position || !room || !date || !startTime || !people){
+  // ตรวจสอบข้อมูลเบื้องต้น
+  if(!payload.name || !payload.position || !payload.room || !payload.date || !payload.startTime || !payload.people){
     errorBox.innerHTML = "⚠️ กรุณากรอกข้อมูลให้ครบถ้วน";
     errorBox.classList.add("show");
     return;
   }
 
-  const data = { name, position, room, building, date, startTime, people, type };
-
   btn.disabled = true;
   const originalLabel = btn.innerHTML;
   btn.innerHTML = "กำลังส่งคำขอ...";
 
-  google.script.run
-  .withSuccessHandler(function(response){
-
+  // ส่งข้อมูลหา Google Apps Script ผ่าน fetch() POST
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({
+      action: "submitBooking",
+      payload: payload
+    })
+  })
+  .then(res => res.json())
+  .then(response => {
     btn.disabled = false;
     btn.innerHTML = originalLabel;
 
@@ -412,19 +416,14 @@ function submitForm(){
     document.getElementById("date").value = "";
     document.getElementById("startTime").value = "";
     document.getElementById("people").value = "";
-
   })
-  .withFailureHandler(function(err){
-
+  .catch(err => {
     btn.disabled = false;
     btn.innerHTML = originalLabel;
 
     errorBox.innerHTML = "⚠️ เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง";
     errorBox.classList.add("show");
-
-  })
-  .submitBooking(data);
-
+  });
 }
 
 </script>
