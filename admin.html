@@ -1,745 +1,421 @@
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRTC Admin Dashboard</title>
 
-<base target="_top">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --primary: #3B82F6;
+      --primary-dark: #1D4ED8;
+      --bg: #F8FAFC;
+      --surface: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #64748B;
+      --border: #E2E8F0;
+      --accent-green: #10B981;
+      --accent-red: #EF4444;
+      --accent-amber: #F59E0B;
+      --radius-lg: 16px;
+      --radius-md: 10px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+      --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.05);
+    }
 
-<title>PRTC Admin Dashboard</title>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    body {
+      font-family: 'Sarabun', 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      padding: 32px 24px;
+      min-height: 100vh;
+    }
 
-<style>
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
 
-:root{
-  --ink:        #1E2A44;
-  --ink-soft:   #5B6B8C;
-  --ink-faint:  #8B96B4;
-  --paper:      #EEF1F8;
-  --card:       #FFFFFF;
-  --line:       #DDE3F0;
-  --line-soft:  #EAEEF7;
-  --primary:    #2F4BD6;
-  --primary-dk: #1F35A8;
-  --primary-05: #EEF1FD;
-  --accent:     #17B37C;
-  --accent-05:  #E7F9F1;
-  --amber:      #B7791F;
-  --amber-05:   #FFF6E5;
-  --danger:     #E5484D;
-  --danger-05:  #FDECEC;
-  --shadow:     0 20px 45px -18px rgba(31, 53, 168, 0.28);
-}
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
 
-*{ box-sizing: border-box; }
+    .title-group h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
 
-body{
-  font-family:'Sarabun','Arial',sans-serif;
-  background:
-    radial-gradient(1100px 480px at 15% -10%, #E4E9FB 0%, transparent 60%),
-    radial-gradient(900px 420px at 110% 10%, #E1F6EC 0%, transparent 55%),
-    var(--paper);
-  min-height: 100vh;
-  margin:0;
-  padding:32px 20px 60px;
-  color: var(--ink);
-}
+    .title-group p {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
 
-.container{
-  max-width:1180px;
-  margin:auto;
-}
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-/* ---------- Top bar ---------- */
-.topbar{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  flex-wrap: wrap;
-  gap: 14px;
-  margin-bottom: 22px;
-}
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-main);
+      text-decoration: none;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
 
-.brand{
-  display:flex;
-  align-items:center;
-  gap: 12px;
-}
+    .btn-action:hover {
+      background: #F1F5F9;
+      border-color: #CBD5E1;
+    }
 
-.brand-icon{
-  width: 46px; height: 46px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dk) 100%);
-  display:flex; align-items:center; justify-content:center;
-  box-shadow: 0 10px 22px -8px rgba(47,75,214,0.5);
-  flex-shrink: 0;
-}
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+    }
 
-.brand h1{
-  margin: 0;
-  font-size: 21px;
-  font-weight: 800;
-  color: var(--ink);
-  letter-spacing: -0.01em;
-}
+    .card-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-.brand .brand-sub{
-  margin: 2px 0 0;
-  font-size: 12.5px;
-  color: var(--ink-soft);
-  font-weight: 600;
-}
+    .card-header h2 {
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-.pending-badge{
-  display:inline-flex;
-  align-items:center;
-  gap: 7px;
-  padding: 9px 16px;
-  border-radius: 999px;
-  background: var(--amber-05);
-  border: 1.5px solid #F5DFA8;
-  color: var(--amber);
-  font-size: 13.5px;
-  font-weight: 700;
-}
+    .badge-count {
+      background: #FEF3C7;
+      color: #B45309;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 99px;
+    }
 
-.pending-badge .num{
-  display:inline-flex;
-  align-items:center; justify-content:center;
-  min-width: 22px; height: 22px;
-  padding: 0 6px;
-  border-radius: 999px;
-  background: var(--amber);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 800;
-}
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+    }
 
-.refresh-btn{
-  display:flex;
-  align-items:center;
-  gap: 7px;
-  padding: 9px 16px;
-  border-radius: 999px;
-  border: 1.5px solid var(--line);
-  background: #fff;
-  color: var(--ink-soft);
-  font-family: inherit;
-  font-size: 13.5px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
-}
-.refresh-btn:hover{ border-color: var(--primary); color: var(--primary-dk); }
-.refresh-btn svg{ transition: transform 0.4s ease; }
-.refresh-btn.spinning svg{ animation: spin 0.7s linear infinite; }
-@keyframes spin{ to { transform: rotate(360deg); } }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
 
-.back-btn{
-  display:flex;
-  align-items:center;
-  gap: 7px;
-  padding: 9px 16px;
-  border-radius: 999px;
-  border: 1.5px solid var(--line);
-  background: #fff;
-  color: var(--ink-soft);
-  font-family: inherit;
-  font-size: 13.5px;
-  font-weight: 700;
-  text-decoration: none;
-  cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, transform 0.1s ease;
-}
-.back-btn:hover{ border-color: var(--primary); color: var(--primary-dk); background: var(--primary-05); }
-.back-btn:active{ transform: translateY(1px); }
+    th {
+      background: #F8FAFC;
+      padding: 14px 18px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border);
+    }
 
-/* ---------- Card ---------- */
-.card{
-  background: var(--card);
-  border-radius: 20px;
-  padding: 26px;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--line-soft);
-}
+    td {
+      padding: 16px 18px;
+      font-size: 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
 
-.card-title{
-  display:flex;
-  align-items:center;
-  gap: 9px;
-  margin: 0 0 18px;
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--ink);
-}
+    tr:hover td {
+      background: #F8FAFC;
+    }
 
-/* ---------- Table ---------- */
-table{
-  width:100%;
-  border-collapse: collapse;
-}
+    .booking-id {
+      font-weight: 700;
+      color: var(--primary-dark);
+      font-size: 13.5px;
+    }
 
-thead th{
-  text-align: left;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-  padding: 0 14px 12px;
-  border-bottom: 2px solid var(--line-soft);
-}
+    .badge-type {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: #EFF6FF;
+      color: #1D4ED8;
+      font-size: 12px;
+      font-weight: 600;
+    }
 
-tbody td{
-  padding: 16px 14px;
-  border-bottom: 1px solid var(--line-soft);
-  font-size: 14px;
-  color: var(--ink);
-  vertical-align: middle;
-}
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 99px;
+      background: #FFFBEB;
+      color: #B45309;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid #FDE68A;
+    }
 
-tbody tr{ transition: background 0.15s ease; }
-tbody tr:hover{ background: var(--primary-05); }
-tbody tr:last-child td{ border-bottom: none; }
+    .btn-group {
+      display: flex;
+      gap: 6px;
+    }
 
-.cell-id{
-  font-weight: 800;
-  color: var(--primary-dk);
-  font-size: 13.5px;
-  letter-spacing: 0.01em;
-}
+    .btn-opt {
+      padding: 7px 12px;
+      border-radius: 6px;
+      border: none;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+    }
 
-.cell-primary{ font-weight: 700; }
-.cell-sub{ font-size: 12.5px; color: var(--ink-soft); margin-top: 2px; }
+    .btn-opt.approve { background: var(--accent-green); color: #fff; }
+    .btn-opt.approve:hover { background: #059669; }
 
-.badge{
-  display:inline-flex;
-  align-items:center;
-  gap: 5px;
-  padding: 5px 11px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-  white-space: nowrap;
-}
+    .btn-opt.reject { background: var(--accent-red); color: #fff; }
+    .btn-opt.reject:hover { background: #DC2626; }
 
-.badge-pending{ background: var(--amber-05); color: var(--amber); border: 1px solid #F5DFA8; }
-.badge-type{ background: var(--primary-05); color: var(--primary-dk); border: 1px solid #D6DFFB; }
+    .btn-opt.delete { background: #E2E8F0; color: #475569; }
+    .btn-opt.delete:hover { background: #CBD5E1; }
 
-.actions{
-  display:flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
+    .state-container {
+      padding: 60px 20px;
+      text-align: center;
+      color: var(--text-muted);
+    }
 
-button.action-btn{
-  border:none;
-  padding: 8px 13px;
-  border-radius: 999px;
-  cursor:pointer;
-  color:white;
-  font-family: inherit;
-  font-size: 12.5px;
-  font-weight: 700;
-  display:inline-flex;
-  align-items:center;
-  gap: 5px;
-  transition: filter 0.15s ease, transform 0.1s ease;
-}
-button.action-btn:hover{ filter: brightness(1.08); }
-button.action-btn:active{ transform: translateY(1px); }
+    .state-container svg {
+      margin-bottom: 12px;
+      color: #94A3B8;
+    }
 
-.approve{ background: var(--accent); }
-.reject{ background: var(--danger); }
-.delete{ background: var(--ink-faint); }
-
-/* ---------- Loading / empty states ---------- */
-.state-row td{
-  padding: 60px 20px !important;
-  text-align: center;
-}
-
-.state-wrap{
-  display:flex;
-  flex-direction: column;
-  align-items:center;
-  gap: 12px;
-}
-
-.state-title{ font-size: 15px; font-weight: 700; color: var(--ink); }
-.state-sub{ font-size: 13px; color: var(--ink-soft); }
-
-.big-spinner{
-  width: 34px; height: 34px;
-  border-radius: 50%;
-  border: 3px solid var(--line-soft);
-  border-top-color: var(--primary);
-  animation: spin 0.8s linear infinite;
-}
-
-/* ---------- Toasts ---------- */
-#toastStack{
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 999;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-width: 340px;
-}
-
-.toast{
-  display:flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 14px 16px;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 14px 34px -12px rgba(30,42,68,0.35);
-  border: 1px solid var(--line-soft);
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--ink);
-  animation: toastIn 0.25s ease;
-}
-
-.toast.success{ border-left: 4px solid var(--accent); }
-.toast.error{ border-left: 4px solid var(--danger); }
-.toast .toast-icon{ flex-shrink:0; margin-top: 1px; }
-
-@keyframes toastIn {
-  from { opacity: 0; transform: translateX(20px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-@keyframes toastOut {
-  from { opacity: 1; transform: translateX(0); }
-  to { opacity: 0; transform: translateX(20px); }
-}
-.toast.leaving{ animation: toastOut 0.2s ease forwards; }
-
-/* ---------- Confirm modal ---------- */
-.modal-backdrop{
-  position: fixed; inset: 0;
-  background: rgba(20,26,44,0.45);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 998;
-  padding: 20px;
-}
-.modal-backdrop.show{ display: flex; animation: fadeIn 0.15s ease; }
-@keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
-
-.modal-box{
-  background:#fff;
-  border-radius: 18px;
-  padding: 26px;
-  max-width: 360px;
-  width: 100%;
-  box-shadow: 0 30px 60px -20px rgba(20,26,44,0.4);
-}
-
-.modal-icon{
-  width: 46px; height: 46px;
-  border-radius: 12px;
-  background: var(--danger-05);
-  display:flex; align-items:center; justify-content:center;
-  margin-bottom: 14px;
-}
-
-.modal-box h4{ margin: 0 0 8px; font-size: 16px; font-weight: 800; color: var(--ink); }
-.modal-box p{ margin: 0 0 22px; font-size: 13.5px; color: var(--ink-soft); line-height: 1.6; }
-
-.modal-actions{ display:flex; gap: 10px; }
-.modal-actions button{
-  flex: 1;
-  padding: 11px;
-  border-radius: 10px;
-  border: none;
-  font-family: inherit;
-  font-size: 13.5px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: filter 0.15s ease;
-}
-.modal-cancel{ background: var(--line-soft); color: var(--ink-soft); }
-.modal-cancel:hover{ filter: brightness(0.96); }
-.modal-confirm{ background: var(--danger); color: #fff; }
-.modal-confirm:hover{ filter: brightness(1.08); }
-
-/* ---------- Responsive ---------- */
-@media (max-width: 860px) {
-
-  .topbar{ flex-direction: column; align-items: flex-start; }
-
-  table, thead, tbody, th, td, tr{ display: block; }
-
-  thead{ display: none; }
-
-  tbody tr{
-    margin-bottom: 14px;
-    border: 1px solid var(--line-soft);
-    border-radius: 14px;
-    padding: 6px 4px;
-    background: #FAFBFE;
-  }
-
-  tbody tr:hover{ background: var(--primary-05); }
-
-  tbody td{
-    display:flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    border-bottom: 1px dashed var(--line-soft);
-    padding: 10px 14px;
-    text-align: right;
-  }
-
-  tbody tr td:last-child{ border-bottom: none; }
-
-  tbody td::before{
-    content: attr(data-label);
-    font-size: 11.5px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: var(--ink-faint);
-    text-align: left;
-  }
-
-  .actions{ justify-content: flex-end; }
-}
-
-</style>
-
+    @media (max-width: 768px) {
+      body { padding: 16px; }
+      .header-bar { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
 </head>
-
 <body>
 
-<div id="toastStack"></div>
-
-<div class="modal-backdrop" id="confirmModal">
-  <div class="modal-box">
-    <div class="modal-icon">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E5484D" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6h16z"/></svg>
-    </div>
-    <h4>ลบรายการจองนี้?</h4>
-    <p id="modalMessage">การลบจะไม่สามารถย้อนกลับได้ ข้อมูลการจองจะถูกลบออกจากระบบถาวร</p>
-    <div class="modal-actions">
-      <button class="modal-cancel" onclick="closeModal()">ยกเลิก</button>
-      <button class="modal-confirm" id="modalConfirmBtn">ลบเลย</button>
-    </div>
-  </div>
-</div>
-
 <div class="container">
-
-  <div class="topbar">
-
-    <div class="brand">
-      <div class="brand-icon">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>
-      </div>
-      <div>
-        <h1>PRTC Admin Dashboard</h1>
-        <p class="brand-sub">จัดการคำขอจองห้องประชุม</p>
-      </div>
+  
+  <div class="header-bar">
+    <div class="title-group">
+      <h1>PRTC Admin Dashboard</h1>
+      <p>จัดการคำขอและอนุมัติการจองห้องประชุม</p>
     </div>
-
-    <div style="display:flex; align-items:center; gap:10px;">
-      <span class="pending-badge" id="pendingBadge">
-        <span class="num" id="pendingCount">0</span>
-        รอดำเนินการ
-      </span>
-      <button class="refresh-btn" id="refreshBtn" onclick="manualRefresh()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-        รีเฟรช
+    
+    <div class="nav-actions">
+      <button class="btn-action" onclick="loadBookings()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        รีเฟรชข้อมูล
       </button>
-      <!-- ลิงก์กลับหน้าจองห้องบนเว็บตัวเอง -->
-      <a class="back-btn" href="index.html">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <a class="btn-action" href="index.html">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         กลับหน้าจองห้อง
       </a>
     </div>
-
   </div>
 
   <div class="card">
+    <div class="card-header">
+      <h2>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        รายการคำขอรออนุมัติ
+      </h2>
+      <span class="badge-count" id="pendingCount">0 รายการ</span>
+    </div>
 
-    <h3 class="card-title">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2F4BD6" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-      รายการรออนุมัติ
-    </h3>
-
-    <table>
-
-      <thead>
-        <tr>
-          <th>Booking ID</th>
-          <th>ผู้จอง</th>
-          <th>ตำแหน่ง/ฝ่าย</th>
-          <th>ห้อง / อาคาร</th>
-          <th>วันที่ / เวลาเริ่ม</th>
-          <th>คน</th>
-          <th>ประเภท</th>
-          <th>สถานะ</th>
-          <th>จัดการ</th>
-        </tr>
-      </thead>
-
-      <tbody id="bookingList">
-        <tr class="state-row">
-          <td colspan="9">
-            <div class="state-wrap">
-              <div class="big-spinner"></div>
-              <div class="state-title">กำลังโหลดข้อมูล...</div>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-
-    </table>
-
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Booking ID</th>
+            <th>ผู้จอง</th>
+            <th>ตำแหน่ง/ฝ่าย</th>
+            <th>ห้อง / อาคาร</th>
+            <th>วันที่ / เวลา</th>
+            <th>จำนวน</th>
+            <th>ประเภท</th>
+            <th>สถานะ</th>
+            <th>จัดการ</th>
+          </tr>
+        </thead>
+        <tbody id="bookingList">
+          <tr>
+            <td colspan="9">
+              <div class="state-container">
+                <p>กำลังโหลดข้อมูลคำขอจองห้องประชุม...</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
 </div>
 
 <script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyCILkpE3hCwf3xpqmf5qn5A47NvPfiCafH6sKBipHHWgvJNNWynueLD0QprDqaSgvMYg/exec";
 
-// Web App URL ของ Google Apps Script
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyauEQupFzr2WsLU59hbZvzf9pj8IvtQHM9XLhZQQ4tJ_QmgnUKcAlz03w03Nez5wC2Xw/exec";
-
-let pendingDeleteId = null;
-
-// ---------- โหลดข้อมูลเมื่อเปิดหน้า ----------
-window.onload = function(){
+window.onload = function() {
   loadBookings();
 };
 
-// ---------- Toast helper ----------
-function showToast(message, type){
-  const stack = document.getElementById("toastStack");
-  const toast = document.createElement("div");
-  toast.className = "toast " + (type || "success");
+function loadBookings() {
+  const table = document.getElementById("bookingList");
+  table.innerHTML = `<tr><td colspan="9"><div class="state-container"><p>กำลังโหลดข้อมูลล่าสุด...</p></div></td></tr>`;
 
-  const iconSvg = type === "error"
-    ? '<svg class="toast-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E5484D" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>'
-    : '<svg class="toast-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#17B37C" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>';
-
-  toast.innerHTML = iconSvg + '<span>' + message + '</span>';
-  stack.appendChild(toast);
-
-  setTimeout(function(){
-    toast.classList.add("leaving");
-    setTimeout(function(){ toast.remove(); }, 200);
-  }, 3200);
-}
-
-// ---------- Manual refresh button ----------
-function manualRefresh(){
-  const btn = document.getElementById("refreshBtn");
-  btn.classList.add("spinning");
-  loadBookings(function(){
-    btn.classList.remove("spinning");
-  });
-}
-
-// =================================
-// โหลด Booking ผ่าน fetch() API
-// =================================
-function loadBookings(onDone){
   fetch(SCRIPT_URL + "?action=getBookings")
     .then(res => res.json())
     .then(response => {
-      if (onDone) onDone();
-
       if (!response || !response.ok) {
-        showToast("เกิดข้อผิดพลาด: " + (response ? response.errorMessage : "No response"), "error");
-        renderEmptyState("เกิดข้อผิดพลาด", response ? response.errorMessage : "");
+        table.innerHTML = `<tr><td colspan="9"><div class="state-container"><p>⚠️ ไม่สามารถดึงข้อมูลได้: ${response.errorMessage || 'Unknown Error'}</p></div></td></tr>`;
         return;
       }
 
       const data = response.data;
-
       if (!data || data.length <= 1) {
-        renderEmptyState("ยังไม่มีรายการจอง", "เมื่อมีคนจองห้องประชุม รายการจะปรากฏที่นี่");
-        updatePendingCount(0);
+        renderEmpty();
         return;
       }
 
-      // แสดงเฉพาะรายการที่ "รออนุมัติ" (index 8)
-      const pendingRows = data.slice(1).filter(function(row){
-        return row[8] === "รออนุมัติ";
-      });
-
-      updatePendingCount(pendingRows.length);
+      const pendingRows = data.slice(1).filter(row => row[8] === "รออนุมัติ");
+      document.getElementById("pendingCount").innerText = `${pendingRows.length} รายการ`;
 
       if (pendingRows.length === 0) {
-        renderEmptyState("ไม่มีรายการรออนุมัติ 🎉", "ทุกคำขอได้รับการดำเนินการแล้ว");
+        renderEmpty();
         return;
       }
 
-      renderRows(pendingRows);
+      renderTable(pendingRows);
     })
     .catch(err => {
-      if (onDone) onDone();
-      showToast("โหลดข้อมูลไม่ได้: " + err.message, "error");
-      renderEmptyState("โหลดข้อมูลไม่ได้", err.message);
+      table.innerHTML = `<tr><td colspan="9"><div class="state-container"><p>⚠️ เกิดข้อผิดพลาดในการโหลดข้อมูล</p></div></td></tr>`;
     });
 }
 
-function updatePendingCount(count){
-  document.getElementById("pendingCount").innerText = count;
-}
-
-function renderEmptyState(title, sub){
-  const table = document.getElementById("bookingList");
-  table.innerHTML = `
-  <tr class="state-row">
-    <td colspan="9">
-      <div class="state-wrap">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#8B96B4" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="M9 15l2 2 4-4"/></svg>
-        <div class="state-title">${title}</div>
-        <div class="state-sub">${sub}</div>
-      </div>
-    </td>
-  </tr>
-  `;
-}
-
-function renderRows(rows){
-  const table = document.getElementById("bookingList");
-  table.innerHTML = "";
-
-  rows.forEach(function(row){
-    table.innerHTML += `
+function renderEmpty() {
+  document.getElementById("pendingCount").innerText = "0 รายการ";
+  document.getElementById("bookingList").innerHTML = `
     <tr>
-      <td data-label="Booking ID"><span class="cell-id">${row[0] || "-"}</span></td>
-      <td data-label="ผู้จอง">${row[1] || "-"}</td>
-      <td data-label="ตำแหน่ง/ฝ่าย">${row[2] || "-"}</td>
-      <td data-label="ห้อง / อาคาร">
-        <div class="cell-primary">${row[3] || "-"}</div>
-        <div class="cell-sub">${row[4] || "-"}</div>
-      </td>
-      <td data-label="วันที่ / เวลาเริ่ม">
-        <div class="cell-primary">${formatDate(row[5])}</div>
-        <div class="cell-sub">${row[6] || "-"}</div>
-      </td>
-      <td data-label="จำนวนคน">${row[7] || "-"} คน</td>
-      <td data-label="ประเภท"><span class="badge badge-type">${row[9] || "-"}</span></td>
-      <td data-label="สถานะ"><span class="badge badge-pending">🕐 ${row[8] || "-"}</span></td>
-      <td data-label="จัดการ">
-        <div class="actions">
-          <button class="action-btn approve" onclick="approve('${row[0]}')">
-            ✓ อนุมัติ
-          </button>
-          <button class="action-btn reject" onclick="reject('${row[0]}')">
-            ✕ ไม่อนุมัติ
-          </button>
-          <button class="action-btn delete" onclick="askDelete('${row[0]}')">
-            🗑 ลบ
-          </button>
+      <td colspan="9">
+        <div class="state-container">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>
+          <p><b>ยังไม่มีรายการคำขอรออนุมัติ</b></p>
+          <p style="font-size: 13px; margin-top: 4px;">เมื่อมีคำขอจองเข้ามา รายการจะปรากฏในหน้านี้ทันที</p>
         </div>
       </td>
     </tr>
+  `;
+}
+
+function renderTable(rows) {
+  const table = document.getElementById("bookingList");
+  table.innerHTML = "";
+
+  rows.forEach(row => {
+    table.innerHTML += `
+      <tr>
+        <td><span class="booking-id">${row[0] || "-"}</span></td>
+        <td><b>${row[1] || "-"}</b></td>
+        <td>${row[2] || "-"}</td>
+        <td>${row[3] || "-"}<br><small style="color:var(--text-muted);">${row[4] || ""}</small></td>
+        <td>${formatDate(row[5])}<br><small style="color:var(--text-muted);">${row[6] || ""}</small></td>
+        <td>${row[7] || "-"} คน</td>
+        <td><span class="badge-type">${row[9] || "-"}</span></td>
+        <td><span class="badge-status">⏳ ${row[8] || "-"}</span></td>
+        <td>
+          <div class="btn-group">
+            <button class="btn-opt approve" onclick="updateStatus('${row[0]}', 'อนุมัติ')">✓ อนุมัติ</button>
+            <button class="btn-opt reject" onclick="updateStatus('${row[0]}', 'ไม่อนุมัติ')">✕ ปฏิเสธ</button>
+            <button class="btn-opt delete" onclick="deleteBooking('${row[0]}')">🗑 ลบ</button>
+          </div>
+        </td>
+      </tr>
     `;
   });
 }
 
-// =================================
-// อัปเดตสถานะ ผ่าน fetch() POST
-// =================================
-function approve(id){
-  updateStatus(id, "อนุมัติ", "อนุมัติรายการ " + id + " แล้ว");
-}
-
-function reject(id){
-  updateStatus(id, "ไม่อนุมัติ", "ปฏิเสธรายการ " + id + " แล้ว");
-}
-
-function updateStatus(id, status, successMessage){
+function updateStatus(id, status) {
   fetch(SCRIPT_URL, {
     method: "POST",
     headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify({
-      action: "updateStatus",
-      payload: { id: id, status: status }
-    })
+    body: JSON.stringify({ action: "updateStatus", payload: { id: id, status: status } })
   })
   .then(res => res.json())
   .then(res => {
-    if (res.ok) {
-      showToast(successMessage, "success");
+    if(res.ok) {
       loadBookings();
     } else {
-      showToast("อัปเดตไม่สำเร็จ", "error");
+      alert("ไม่สามารถอัปเดตสถานะได้");
     }
-  })
-  .catch(err => {
-    showToast("อัปเดตไม่สำเร็จ: " + err.message, "error");
   });
 }
 
-// =================================
-// ลบ Booking ผ่าน fetch() POST
-// =================================
-function askDelete(id){
-  pendingDeleteId = id;
-  document.getElementById("modalMessage").innerText =
-    "รายการ " + id + " จะถูกลบออกจากระบบถาวร และไม่สามารถย้อนกลับได้";
-  document.getElementById("confirmModal").classList.add("show");
-}
-
-function closeModal(){
-  pendingDeleteId = null;
-  document.getElementById("confirmModal").classList.remove("show");
-}
-
-document.getElementById("modalConfirmBtn").addEventListener("click", function(){
-  if (!pendingDeleteId) return;
-
-  const id = pendingDeleteId;
-  closeModal();
+function deleteBooking(id) {
+  if(!confirm(`ยืนยันการลบรายการจองรหัส ${id} ?`)) return;
 
   fetch(SCRIPT_URL, {
     method: "POST",
     headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify({
-      action: "deleteBooking",
-      payload: { id: id }
-    })
+    body: JSON.stringify({ action: "deleteBooking", payload: { id: id } })
   })
   .then(res => res.json())
   .then(res => {
-    if (res.ok) {
-      showToast("ลบรายการ " + id + " แล้ว", "success");
+    if(res.ok) {
       loadBookings();
     } else {
-      showToast("ลบไม่สำเร็จ", "error");
+      alert("ไม่สามารถลบรายการได้");
     }
-  })
-  .catch(err => {
-    showToast("ลบไม่สำเร็จ: " + err.message, "error");
   });
-});
+}
 
-// =================================
-// แปลงวันที่
-// =================================
-function formatDate(date){
+function formatDate(date) {
   if (!date) return "-";
   const d = new Date(date);
   if (isNaN(d.getTime())) return date;
   return d.toLocaleDateString("th-TH", { day: "numeric", month: "short", year: "numeric" });
 }
-
 </script>
 
 </body>
