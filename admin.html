@@ -369,6 +369,31 @@ button.action-btn:active{ transform: translateY(1px); }
 .approve{ background: var(--accent); }
 .reject{ background: var(--danger); }
 .delete{ background: var(--ink-faint); }
+.save-img{ background: var(--primary); }
+
+.img-input {
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  font-size: 12.5px;
+  width: 170px;
+  outline: none;
+}
+.img-input:focus { border-color: var(--primary); }
+
+.img-preview-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: var(--accent-05);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  margin-left: 4px;
+}
 
 /* ---------- Loading / empty states ---------- */
 .state-row td{
@@ -626,13 +651,14 @@ button.action-btn:active{ transform: translateY(1px); }
           <th>คน</th>
           <th>ประเภท</th>
           <th>สถานะ</th>
+          <th>รูปบรรยากาศ (ซิงค์เข้าคอลัมน์ K)</th>
           <th>จัดการ</th>
         </tr>
       </thead>
 
       <tbody id="bookingList">
         <tr class="state-row">
-          <td colspan="9">
+          <td colspan="10">
             <div class="state-wrap">
               <div class="big-spinner"></div>
               <div class="state-title">กำลังโหลดข้อมูล...</div>
@@ -649,7 +675,7 @@ button.action-btn:active{ transform: translateY(1px); }
 
 <script>
 
-// อัปเดต URL ใหม่
+// อัปเดต URL ล่าสุด
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyauEQupFzr2WsLU59hbZvzf9pj8IvtQHM9XLhZQQ4tJ_QmgnUKcAlz03w03Nez5wC2Xw/exec";
 
 let pendingDeleteId = null;
@@ -745,7 +771,7 @@ function renderEmptyState(title, sub){
   const table = document.getElementById("bookingList");
   table.innerHTML = `
   <tr class="state-row">
-    <td colspan="9">
+    <td colspan="10">
       <div class="state-wrap">
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#8B96B4" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="M9 15l2 2 4-4"/></svg>
         <div class="state-title">${title}</div>
@@ -761,6 +787,9 @@ function renderRows(rows){
   table.innerHTML = "";
 
   rows.forEach(function(row){
+    const currentImgUrl = row[10] || ""; // คอลัมน์ K คือ index 10
+    const viewBtn = currentImgUrl ? `<a href="${currentImgUrl}" target="_blank" class="img-preview-btn">🔗 ดูรูป</a>` : "";
+
     table.innerHTML += `
     <tr>
       <td data-label="Booking ID"><span class="cell-id">${row[0] || "-"}</span></td>
@@ -777,6 +806,13 @@ function renderRows(rows){
       <td data-label="จำนวนคน">${row[7] || "-"} คน</td>
       <td data-label="ประเภท"><span class="badge badge-type">${row[9] || "-"}</span></td>
       <td data-label="สถานะ"><span class="badge badge-pending">🕐 ${row[8] || "-"}</span></td>
+      <td data-label="รูปบรรยากาศ (ซิงค์เข้าคอลัมน์ K)">
+        <div style="display:flex; align-items:center;">
+          <input type="text" class="img-input" id="img_${row[0]}" placeholder="วาง URL ลิงก์รูปภาพ..." value="${currentImgUrl}">
+          <button class="action-btn save-img" style="margin-left:5px; padding:6px 10px; font-size:11.5px;" onclick="saveImageLink('${row[0]}')">💾 บันทึก</button>
+          ${viewBtn}
+        </div>
+      </td>
       <td data-label="จัดการ">
         <div class="actions">
           <button class="action-btn approve" onclick="approve('${row[0]}')">
@@ -792,6 +828,35 @@ function renderRows(rows){
       </td>
     </tr>
     `;
+  });
+}
+
+// =================================
+// บันทึกลิงก์รูปภาพเข้า คอลัมน์ K
+// =================================
+function saveImageLink(id){
+  const urlInput = document.getElementById("img_" + id);
+  const imageUrl = urlInput ? urlInput.value.trim() : "";
+
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({
+      action: "updateImageUrl",
+      payload: { id: id, imageUrl: imageUrl }
+    })
+  })
+  .then(res => res.json())
+  .then(res => {
+    if (res.ok) {
+      showToast("บันทึกลิงก์รูปภาพเข้าคอลัมน์ K เรียบร้อยแล้ว", "success");
+      loadBookings();
+    } else {
+      showToast("บันทึกไม่สำเร็จ", "error");
+    }
+  })
+  .catch(err => {
+    showToast("เกิดข้อผิดพลาด: " + err.message, "error");
   });
 }
 
