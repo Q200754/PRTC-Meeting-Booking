@@ -8,389 +8,359 @@
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --primary: #3B82F6;
-      --primary-dark: #1D4ED8;
-      --primary-light: #EFF6FF;
-      --bg: #F8FAFC;
-      --surface: #FFFFFF;
-      --text-main: #0F172A;
-      --text-muted: #64748B;
-      --border: #E2E8F0;
-      --accent-green: #10B981;
-      --accent-amber: #F59E0B;
-      --accent-red: #EF4444;
-      --radius-lg: 20px;
-      --radius-md: 12px;
-      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
-      --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
-      --shadow-lg: 0 20px 30px -10px rgba(59, 130, 246, 0.15);
+      --ink:        #1E2A44;
+      --ink-soft:   #5B6B8C;
+      --paper:      #EEF1F8;
+      --card:       #FFFFFF;
+      --line:       #DDE3F0;
+      --line-soft:  #EAEEF7;
+      --primary:    #2F4BD6;
+      --primary-dk: #1F35A8;
+      --primary-05: #EEF1FD;
+      --accent:     #17B37C;
+      --accent-05:  #E7F9F1;
+      --radius:     14px;
+      --shadow:     0 20px 45px -18px rgba(31, 53, 168, 0.28);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; }
 
     body {
-      font-family: 'Sarabun', 'Plus Jakarta Sans', sans-serif;
-      background: var(--bg);
-      background-image: 
-        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.08) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
+      font-family: 'Sarabun', 'Arial', sans-serif;
+      background:
+        radial-gradient(1100px 480px at 15% -10%, #E4E9FB 0%, transparent 60%),
+        radial-gradient(900px 420px at 110% 10%, #E1F6EC 0%, transparent 55%),
+        var(--paper);
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 32px 16px;
-      color: var(--text-main);
+      margin: 0;
+      padding: 40px 20px;
+      color: var(--ink);
     }
 
-    .app-card {
-      width: 100%;
-      max-width: 520px;
-      background: var(--surface);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-md);
-      border: 1px solid var(--border);
+    .container {
+      max-width: 480px;
+      margin: auto;
+      background: var(--card);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
       overflow: hidden;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border: 1px solid var(--line-soft);
     }
 
-    .header-banner {
-      background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
-      padding: 36px 32px 28px;
-      color: #FFFFFF;
+    /* ---------- Header ---------- */
+    .header {
       position: relative;
+      padding: 30px 32px 26px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dk) 100%);
+      color: #fff;
+      overflow: hidden;
     }
 
-    .header-banner::after {
+    .header::before {
       content: "";
       position: absolute;
-      top: 0; right: 0; bottom: 0; left: 0;
-      background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.25), transparent 70%);
-      pointer-events: none;
+      inset: 0;
+      background-image:
+        linear-gradient(to right, rgba(255,255,255,0.08) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.08) 1px, transparent 1px);
+      background-size: 26px 26px;
+      mask-image: linear-gradient(to bottom, black, transparent 85%);
     }
 
-    .badge-status {
+    .header-eyebrow {
+      position: relative;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
-      border-radius: 99px;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(8px);
-      font-size: 12px;
+      gap: 8px;
+      font-size: 12.5px;
       font-weight: 600;
-      color: #93C5FD;
-      margin-bottom: 12px;
+      letter-spacing: 0.06em;
+      color: #C9D4FF;
+      text-transform: uppercase;
     }
 
-    .badge-status .pulse-dot {
-      width: 8px; height: 8px;
-      background-color: var(--accent-green);
-      border-radius: 50%;
-      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-      animation: pulse 1.8s infinite;
+    .header-eyebrow .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(23,179,124,0.25);
     }
 
-    @keyframes pulse {
-      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-    }
-
-    .header-banner h1 {
+    h2 {
+      position: relative;
+      margin: 10px 0 2px;
       font-size: 24px;
       font-weight: 700;
-      letter-spacing: -0.02em;
-      margin-bottom: 6px;
+      letter-spacing: -0.01em;
     }
 
-    .header-banner p {
-      font-size: 14px;
-      color: #94A3B8;
-      line-height: 1.5;
+    .header-sub {
+      position: relative;
+      margin: 0;
+      font-size: 13.5px;
+      color: #C9D4FF;
     }
 
-    .form-container {
-      padding: 32px;
-    }
+    /* ---------- Form body ---------- */
+    .form-body { padding: 28px 32px 32px; }
 
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 18px;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .form-group.full-width {
-      grid-column: span 2;
-    }
+    .field { margin-top: 20px; }
+    .field:first-child { margin-top: 0; }
 
     label {
-      font-size: 13.5px;
-      font-weight: 600;
-      color: #334155;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 7px;
     }
 
-    label svg {
-      color: var(--primary);
-    }
+    label svg { flex-shrink: 0; opacity: 0.75; }
 
     input, select {
       width: 100%;
       padding: 12px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius-md);
+      border-radius: 10px;
+      border: 1.5px solid var(--line);
+      background: #FAFBFE;
       font-family: inherit;
-      font-size: 14.5px;
-      color: var(--text-main);
-      background: #F8FAFC;
-      transition: all 0.2s ease;
-      outline: none;
-    }
-
-    input:focus, select:focus {
-      background: #FFFFFF;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+      font-size: 15px;
+      color: var(--ink);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+      appearance: none;
     }
 
     select {
-      cursor: pointer;
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748B'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%235B6B8C'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 12px center;
-      background-size: 16px;
       padding-right: 36px;
+      cursor: pointer;
     }
 
-    .btn-submit {
+    input:hover, select:hover { border-color: #C3CCE6; }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: #fff;
+      box-shadow: 0 0 0 4px var(--primary-05);
+    }
+
+    /* ---------- Button ---------- */
+    button.submit {
       width: 100%;
-      margin-top: 24px;
-      padding: 14px 20px;
-      background: var(--primary);
-      color: #FFFFFF;
+      margin-top: 28px;
+      padding: 14px;
       border: none;
-      border-radius: var(--radius-md);
+      border-radius: 12px;
+      background: var(--primary);
+      color: white;
       font-family: inherit;
-      font-size: 15px;
-      font-weight: 600;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      box-shadow: var(--shadow-lg);
-      transition: all 0.2s ease;
+      box-shadow: 0 10px 22px -8px rgba(47, 75, 214, 0.55);
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
     }
 
-    .btn-submit:hover {
-      background: var(--primary-dark);
-      transform: translateY(-1px);
-    }
+    button.submit:hover { background: var(--primary-dk); box-shadow: 0 12px 26px -8px rgba(31, 53, 168, 0.6); }
+    button.submit:active { transform: translateY(1px); }
+    button.submit:disabled { opacity: 0.65; cursor: progress; }
 
-    .btn-submit:active {
-      transform: translateY(0);
-    }
-
-    .btn-submit:disabled {
-      background: #94A3B8;
-      cursor: not-allowed;
-      box-shadow: none;
-      transform: none;
-    }
-
-    /* ซ่อนกล่องข้อความไว้เป็นค่าเริ่มต้น */
-    .response-alert {
+    /* ---------- Result ---------- */
+    .success {
       margin-top: 18px;
       padding: 14px 16px;
-      border-radius: var(--radius-md);
+      border-radius: 10px;
+      background: var(--accent-05);
+      border: 1px solid #CBEFDD;
+      color: #0E7A54;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      line-height: 1.6;
+      display: none;
+    }
+
+    .success.show { display: block; }
+
+    .error {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 10px;
+      background: #FDECEC;
+      border: 1px solid #F6C6C6;
+      color: #B3261E;
       font-size: 14px;
       font-weight: 600;
       text-align: center;
       display: none;
-      animation: fadeIn 0.3s ease;
     }
 
-    .response-alert.success {
-      background: #ECFDF5;
-      border: 1px solid #A7F3D0;
-      color: #065F46;
-    }
+    .error.show { display: block; }
 
-    .response-alert.error {
-      background: #FEF2F2;
-      border: 1px solid #FECACA;
-      color: #991B1B;
-    }
-
-    .admin-link-btn {
+    .admin-link {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      margin-top: 20px;
+      width: 100%;
+      margin-top: 18px;
       padding: 12px;
-      border-radius: var(--radius-md);
-      border: 1.5px solid var(--border);
-      background: #FFFFFF;
-      color: var(--text-muted);
-      font-size: 13.5px;
-      font-weight: 600;
+      border-radius: 12px;
+      border: 1.5px solid var(--line);
+      background: #FAFBFE;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink-soft);
       text-decoration: none;
-      transition: all 0.2s ease;
+      box-sizing: border-box;
+      transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease, transform 0.1s ease;
     }
 
-    .admin-link-btn:hover {
-      background: #F1F5F9;
-      color: var(--text-main);
-      border-color: #CBD5E1;
+    .admin-link svg { flex-shrink: 0; }
+
+    .admin-link:hover {
+      border-color: var(--primary);
+      background: var(--primary-05);
+      color: var(--primary-dk);
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-4px); }
-      to { opacity: 1; transform: translateY(0); }
+    .admin-link:active {
+      transform: translateY(1px);
     }
 
-    @media (max-width: 520px) {
-      .form-grid { grid-template-columns: 1fr; }
-      .form-group.full-width { grid-column: span 1; }
-      .form-container { padding: 24px; }
-      .header-banner { padding: 28px 24px 22px; }
+    @media (max-width: 420px) {
+      .form-body { padding: 24px 22px 28px; }
+      .header { padding: 26px 22px 22px; }
     }
   </style>
 </head>
+
 <body>
 
-<div class="app-card">
-  <div class="header-banner">
-    <div class="badge-status">
-      <span class="pulse-dot"></span>
-      PRTC Meeting Booking
-    </div>
-    <h1>จองห้องประชุม</h1>
-    <p>กรอกรายละเอียดข้อมูลการจองห้องประชุมให้ครบถ้วนเพื่อส่งขออนุมัติ</p>
+<div class="container">
+
+  <div class="header">
+    <span class="header-eyebrow"><span class="dot"></span>ระบบจองห้องประชุม</span>
+    <h2>จองห้องประชุม</h2>
+    <p class="header-sub">กรอกรายละเอียดให้ครบถ้วน แล้วส่งคำขอเพื่อยืนยันการจอง</p>
   </div>
 
-  <div class="form-container">
-    <div class="form-grid">
-      
-      <div class="form-group full-width">
-        <label for="name">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          ชื่อ - นามสกุล ผู้จอง
-        </label>
-        <input id="name" type="text" placeholder="ระบุชื่อ-นามสกุล">
-      </div>
+  <div class="form-body">
 
-      <div class="form-group full-width">
-        <label for="position">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-          ตำแหน่ง / ฝ่าย
-        </label>
-        <input id="position" type="text" placeholder="เช่น อาจารย์, นักเรียน, เจ้าหน้าที่">
-      </div>
-
-      <div class="form-group">
-        <label for="room">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          ห้องประชุม
-        </label>
-        <input id="room" type="text" placeholder="ระบุชื่อห้องประชุม">
-      </div>
-
-      <div class="form-group">
-        <label for="building">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="9" y1="6" x2="9" y2="6.01"/><line x1="15" y1="6" x2="15" y2="6.01"/><line x1="9" y1="10" x2="9" y2="10.01"/><line x1="15" y1="10" x2="15" y2="10.01"/><line x1="9" y1="14" x2="9" y2="14.01"/><line x1="15" y1="14" x2="15" y2="14.01"/></svg>
-          อาคาร
-        </label>
-        <select id="building">
-          <option value="อาคารหกชั้น">อาคารหกชั้น</option>
-          <option value="อาคารวัฒนาทร">อาคารวัฒนาทร</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="date">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          วันที่
-        </label>
-        <input id="date" type="date">
-      </div>
-
-      <div class="form-group">
-        <label for="startTime">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          เวลาเริ่ม
-        </label>
-        <input id="startTime" type="time">
-      </div>
-
-      <div class="form-group">
-        <label for="people">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-3-3.87"/><path d="M9 21v-2a4 4 0 0 1 3-3.87"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><circle cx="19" cy="11" r="2"/></svg>
-          จำนวนคน
-        </label>
-        <input id="people" type="number" min="1" placeholder="ระบุจำนวน">
-      </div>
-
-      <div class="form-group">
-        <label for="type">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-          วัตถุประสงค์
-        </label>
-        <select id="type">
-          <option value="ประชุม">ประชุม</option>
-          <option value="CSR">CSR</option>
-          <option value="สัมมนา">ประชุมประจำภาคเรียน</option>
-          <option value="ประชุมคณะครู">ประชุมคณะครู</option>
-          <option value="อื่นๆ">อื่นๆ</option>
-        </select>
-      </div>
-
+    <div class="field">
+      <label for="name">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+        ชื่อผู้จอง
+      </label>
+      <input id="name" type="text" placeholder="ชื่อ - นามสกุล">
     </div>
 
-    <button class="btn-submit" id="submitBtn" onclick="submitForm()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-      ส่งคำขอจองห้องประชุม
+    <div class="field">
+      <label for="position">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h5"/></svg>
+        ตำแหน่ง/ฝ่าย
+      </label>
+      <input id="position" type="text" placeholder="เช่น นักเรียน, ครู, ธุรการ">
+    </div>
+
+    <div class="field">
+      <label for="room">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>
+        ห้องประชุม
+      </label>
+      <input id="room" name="room" type="text" placeholder="พิมพ์ชื่อห้องประชุม" required>
+    </div>
+
+    <div class="field">
+      <label for="building">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V7l8-4 8 4v14"/><path d="M9 21v-6h6v6"/></svg>
+        อาคาร
+      </label>
+      <select id="building">
+        <option value="อาคารหกชั้น">อาคารหกชั้น</option>
+        <option value="อาคารวัฒนาทร">อาคารวัฒนาทร</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="date">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        วันที่ประชุม
+      </label>
+      <input id="date" type="date">
+    </div>
+
+    <div class="field">
+      <label for="startTime">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        เวลาเริ่ม
+      </label>
+      <input id="startTime" type="time">
+    </div>
+
+    <div class="field">
+      <label for="people">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M2 20c0-3.5 3-5.5 6-5.5s6 2 6 5.5M14 20c0-2.5 2-4.5 5-4.5"/></svg>
+        จำนวนผู้เข้าประชุม
+      </label>
+      <input id="people" type="number" min="1" placeholder="เช่น 10">
+    </div>
+
+    <div class="field">
+      <label for="type">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+        ประเภท
+      </label>
+      <select id="type">
+        <option value="ประชุม">ประชุม</option>
+        <option value="CSR">CSR</option>
+        <option value="ประชุมประจำภาคเรียน">ประชุมประจำภาคเรียน</option>
+        <option value="ประชุมคณะครู">ประชุมคณะครู</option>
+        <option value="อื่นๆ">อื่นๆ</option>
+      </select>
+    </div>
+
+    <button class="submit" id="submitBtn" onclick="submitForm()">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+      ส่งคำขอจอง
     </button>
 
-    <!-- ซ่อนกล่องไว้ก่อน -->
-    <div class="response-alert" id="result"></div>
-    <div class="response-alert" id="errorResult"></div>
+    <div class="success" id="result"></div>
+    <div class="error" id="errorResult"></div>
 
-    <a class="admin-link-btn" href="admin.html">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      เข้าสู่ระบบผู้ดูแลระบบ (Admin)
+    <a class="admin-link" href="admin.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      สำหรับผู้ดูแลระบบ · ไปหน้า Admin Dashboard
     </a>
 
   </div>
 </div>
 
 <script>
+
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyauEQupFzr2WsLU59hbZvzf9pj8IvtQHM9XLhZQQ4tJ_QmgnUKcAlz03w03Nez5wC2Xw/exec";
 
-function submitForm() {
+function submitForm(){
   const btn = document.getElementById("submitBtn");
   const resultBox = document.getElementById("result");
   const errorBox = document.getElementById("errorResult");
 
-  // รีเซ็ตการแสดงผล
-  resultBox.style.display = "none";
-  errorBox.style.display = "none";
-  resultBox.className = "response-alert";
-  errorBox.className = "response-alert";
+  resultBox.classList.remove("show");
+  errorBox.classList.remove("show");
 
   const payload = {
     name: document.getElementById("name").value.trim(),
@@ -403,38 +373,38 @@ function submitForm() {
     type: document.getElementById("type").value
   };
 
-  if(!payload.name || !payload.position || !payload.room || !payload.date || !payload.startTime || !payload.people) {
-    errorBox.innerHTML = "⚠️ กรุณากรอกข้อมูลให้ครบถ้วนทุกช่อง";
-    errorBox.classList.add("error");
-    errorBox.style.display = "block";
+  if(!payload.name || !payload.position || !payload.room || !payload.date || !payload.startTime || !payload.people){
+    errorBox.innerHTML = "⚠️ กรุณากรอกข้อมูลให้ครบถ้วน";
+    errorBox.classList.add("show");
     return;
   }
 
   btn.disabled = true;
-  btn.innerHTML = "กำลังส่งข้อมูล...";
+  const originalLabel = btn.innerHTML;
+  btn.innerHTML = "กำลังส่งคำขอ...";
 
   fetch(SCRIPT_URL, {
     method: "POST",
     headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify({ action: "submitBooking", payload: payload })
+    body: JSON.stringify({
+      action: "submitBooking",
+      payload: payload
+    })
   })
   .then(res => res.json())
   .then(response => {
     btn.disabled = false;
-    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> ส่งคำขอจองห้องประชุม`;
+    btn.innerHTML = originalLabel;
 
-    if(response.status === "error") {
+    if(response.status === "error"){
       errorBox.innerHTML = "⚠️ " + response.message;
-      errorBox.classList.add("error");
-      errorBox.style.display = "block";
+      errorBox.classList.add("show");
       return;
     }
 
-    resultBox.innerHTML = "🎉 <b>ส่งคำขอจองสำเร็จ!</b><br>รหัสการจอง: " + response.bookingID;
-    resultBox.classList.add("success");
-    resultBox.style.display = "block";
+    resultBox.innerHTML = "✅ จองสำเร็จ<br>รหัส: " + response.bookingID;
+    resultBox.classList.add("show");
 
-    // ล้างค่าข้อมูลในฟอร์ม
     document.getElementById("name").value = "";
     document.getElementById("position").value = "";
     document.getElementById("room").value = "";
@@ -444,12 +414,13 @@ function submitForm() {
   })
   .catch(err => {
     btn.disabled = false;
-    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> ส่งคำขอจองห้องประชุม`;
-    errorBox.innerHTML = "⚠️ เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง";
-    errorBox.classList.add("error");
-    errorBox.style.display = "block";
+    btn.innerHTML = originalLabel;
+
+    errorBox.innerHTML = "⚠️ เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง";
+    errorBox.classList.add("show");
   });
 }
+
 </script>
 
 </body>
