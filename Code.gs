@@ -37,8 +37,10 @@ function doPost(e) {
       result = { ok: updateBookingStatus(data.payload.id, data.payload.status) };
     } else if (data.action === "deleteBooking") {
       result = { ok: deleteBooking(data.payload.id) };
-    } else if (data.action === "updateImageUrl") {
-      result = { ok: updateImageUrlToColumnK(data.payload.id, data.payload.imageUrl) };
+    } else if (data.action === "editBooking") {
+      result = { ok: editBookingData(data.payload) };
+    } else if (data.action === "uploadImageAndNotify" || data.action === "uploadImageColumnK") {
+      result = uploadMeetingImageToColumnK(data.payload);
     }
   } catch (err) {
     result = { status: "error", message: err.message };
@@ -48,109 +50,70 @@ function doPost(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// อัปเดตลิงก์รูปภาพไปยัง คอลัมน์ K (คอลัมน์ที่ 11)
-function updateImageUrlToColumnK(id, imageUrl) {
+// 1. ฟังก์ชันแก้ไขข้อมูลการจอง (ไม่ส่ง LINE)
+function editBookingData(payload) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = ss.getSheetByName(SHEET_NAME);
   const data = sheet.getDataRange().getValues();
 
   for (let i = 1; i < data.length; i++) {
-    if (data[i][0] == id) {
-      sheet.getRange(i + 1, 11).setValue(imageUrl); // คอลัมน์ K = คอลัมน์ที่ 11
+    if (data[i][0] == payload.id) {
+      sheet.getRange(i + 1, 2).setValue(payload.name);       // B: Name
+      sheet.getRange(i + 1, 3).setValue(payload.position);   // C: Position
+      sheet.getRange(i + 1, 4).setValue(payload.room);       // D: Room
+      sheet.getRange(i + 1, 5).setValue(payload.building);   // E: Building
+      sheet.getRange(i + 1, 6).setValue(payload.date);       // F: Date
+      sheet.getRange(i + 1, 7).setValue(payload.startTime);  // G: StartTime
+      sheet.getRange(i + 1, 8).setValue(payload.people);     // H: People
+      sheet.getRange(i + 1, 10).setValue(payload.type);      // J: Type
       return true;
     }
   }
   return false;
 }
 
-function submitBooking(data) {
+// 2. ฟังก์ชันอัปโหลดรูปภาพลง Google Drive บันทึกลงคอลัมน์ K (ไม่ส่ง LINE)
+function uploadMeetingImageToColumnK(payload) {
   try {
+    const id = payload.id;
+    const base64Data = payload.base64Data;
+    const fileName = payload.fileName || `Meeting_${id}.jpg`;
+
+    let folder;
+    const folders = DriveApp.getFoldersByName("PRTC_Meeting_Photos");
+    if (folders.hasNext()) {
+      folder = folders.next();
+    } else {
+      folder = DriveApp.createFolder("PRTC_Meeting_Photos");
+    }
+
+    const contentType = base64Data.substring(base64Data.indexOf(":") + 1, base64Data.indexOf(";"));
+    const bytes = Utilities.base64Decode(base64Data.split(",")[1]);
+    const blob = Utilities.newBlob(bytes, contentType, fileName);
+
+    const file = folder.createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    
+    const viewUrl = file.getUrl();
+
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName(SHEET_NAME);
-    if (!sheet) throw new Error("ไม่พบ Sheet: " + SHEET_NAME);
+    const data = sheet.getDataRange().getValues();
 
-    const bookingID = generateBookingID(sheet);
-    const name = String(data.name).trim();
-    const position = String(data.position || "").trim();
-    const room = String(data.room).trim();
-    const building = String(data.building).trim();
-    const date = data.date;
-    const startTime = data.startTime;
-    const people = Number(data.people);
-    const type = String(data.type).trim();
-
-    sheet.appendRow([
-      bookingID, name, position, room, building, date, startTime, people, "รออนุมัติ", type, ""
-    ]);
-
-    return { status: "success", bookingID: bookingID };
-  } catch (error) {
-    return { status: "error", message: error.message };
-  }
-}
-
-function generateBookingID(sheet) {
-  const now = new Date();
-  const day = Utilities.formatDate(now, "Asia/Bangkok", "dd");
-  const month = Utilities.formatDate(now, "Asia/Bangkok", "MM");
-  const prefix = "BK" + day + month;
-
-  const data = sheet.getDataRange().getValues();
-  let count = 0;
-
-  data.forEach(row => {
-    if (row[0] && row[0].toString().startsWith(prefix)) count++;
-  });
-
-  const number = String(count + 1).padStart(3, "0");
-  return `${prefix}-${number}`;
-}
-
-function getBookings() {
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  const sheet = ss.getSheetByName(SHEET_NAME);
-  if (!sheet) throw new Error("ไม่พบ Sheet Bookings");
-
-  const data = sheet.getDataRange().getValues();
-
-  return data.map(function(row) {
-    return row.map(function(cell) {
-      if (cell instanceof Date) {
-        const isTimeOnly = cell.getFullYear() === 1899;
-        return Utilities.formatDate(
-          cell,
-          "Asia/Bangkok",
-          isTimeOnly ? "HH:mm" : "yyyy-MM-dd HH:mm:ss"
-        );
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] == id) {
+        sheet.getRange(i + 1, 11).setValue(viewUrl); // คอลัมน์ K = index 11
+        break;
       }
-      return cell;
-    });
-  });
-}
-
-function getBookingsSafe() {
-  try {
-    const data = getBookings();
-    return { ok: true, rowCount: data.length, data: data };
-  } catch (error) {
-    return { ok: false, errorMessage: error.message, errorStack: error.stack };
-  }
-}
-
-function deleteBooking(id) {
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  const sheet = ss.getSheetByName(SHEET_NAME);
-  const data = sheet.getDataRange().getValues();
-
-  for (let i = 1; i < data.length; i++) {
-    if (data[i][0] == id) {
-      sheet.deleteRow(i + 1);
-      return true;
     }
+
+    return { ok: true, fileUrl: viewUrl };
+  } catch (err) {
+    return { ok: false, errorMessage: err.message };
   }
-  return false;
 }
 
+// 3. ฟังก์ชันเปลี่ยนสถานะ (อนุมัติ/ไม่อนุมัติ) -> ส่งการแจ้งเตือนเข้า LINE!
 function updateBookingStatus(id, status) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = ss.getSheetByName(SHEET_NAME);
@@ -161,6 +124,7 @@ function updateBookingStatus(id, status) {
       sheet.getRange(i + 1, 9).setValue(status);
       sheet.getRange(i + 1, 12).setValue(new Date());
 
+      // เด้งเข้า LINE เฉพาะตอนอนุมัติ/ไม่อนุมัติ
       if (status === "อนุมัติ") sendApproveLine(data[i]);
       if (status === "ไม่อนุมัติ") sendRejectLine(data[i]);
 
@@ -170,6 +134,9 @@ function updateBookingStatus(id, status) {
   return false;
 }
 
+// ======================================
+// ฟังก์ชันจัดการ LINE Notification
+// ======================================
 const THAI_MONTHS = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
 
 function formatThaiDate(value) {
@@ -311,6 +278,94 @@ function sendLineFlex(bubble, altText) {
     },
     payload: JSON.stringify(payload)
   });
+}
+
+function submitBooking(data) {
+  try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheet = ss.getSheetByName(SHEET_NAME);
+    if (!sheet) throw new Error("ไม่พบ Sheet: " + SHEET_NAME);
+
+    const bookingID = generateBookingID(sheet);
+    const name = String(data.name).trim();
+    const position = String(data.position || "").trim();
+    const room = String(data.room).trim();
+    const building = String(data.building).trim();
+    const date = data.date;
+    const startTime = data.startTime;
+    const people = Number(data.people);
+    const type = String(data.type).trim();
+
+    sheet.appendRow([
+      bookingID, name, position, room, building, date, startTime, people, "รออนุมัติ", type, ""
+    ]);
+
+    return { status: "success", bookingID: bookingID };
+  } catch (error) {
+    return { status: "error", message: error.message };
+  }
+}
+
+function generateBookingID(sheet) {
+  const now = new Date();
+  const day = Utilities.formatDate(now, "Asia/Bangkok", "dd");
+  const month = Utilities.formatDate(now, "Asia/Bangkok", "MM");
+  const prefix = "BK" + day + month;
+
+  const data = sheet.getDataRange().getValues();
+  let count = 0;
+
+  data.forEach(row => {
+    if (row[0] && row[0].toString().startsWith(prefix)) count++;
+  });
+
+  const number = String(count + 1).padStart(3, "0");
+  return `${prefix}-${number}`;
+}
+
+function getBookings() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet) throw new Error("ไม่พบ Sheet Bookings");
+
+  const data = sheet.getDataRange().getValues();
+
+  return data.map(function(row) {
+    return row.map(function(cell) {
+      if (cell instanceof Date) {
+        const isTimeOnly = cell.getFullYear() === 1899;
+        return Utilities.formatDate(
+          cell,
+          "Asia/Bangkok",
+          isTimeOnly ? "HH:mm" : "yyyy-MM-dd HH:mm:ss"
+        );
+      }
+      return cell;
+    });
+  });
+}
+
+function getBookingsSafe() {
+  try {
+    const data = getBookings();
+    return { ok: true, rowCount: data.length, data: data };
+  } catch (error) {
+    return { ok: false, errorMessage: error.message, errorStack: error.stack };
+  }
+}
+
+function deleteBooking(id) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(SHEET_NAME);
+  const data = sheet.getDataRange().getValues();
+
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0] == id) {
+      sheet.deleteRow(i + 1);
+      return true;
+    }
+  }
+  return false;
 }
 
 function getMeetingRooms() {
