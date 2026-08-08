@@ -956,7 +956,7 @@ function renderApprovedRows(rows){
 }
 
 /* =================================
-   อัปโหลดรูปภาพพร้อมปรับขนาด (ย่อรูปอัตโนมัติ)
+   อัปโหลดรูปภาพพร้อมปรับขนาด (ย่อรูปให้ขนาดเล็กมากกันติด Failed to fetch)
    ================================= */
 function uploadFileFromDevice(id) {
   const fileInput = document.getElementById("file_" + id);
@@ -972,11 +972,11 @@ function uploadFileFromDevice(id) {
   reader.onload = function(e) {
     const img = new Image();
     img.onload = function() {
-      // ปรับย่อขนาดรูปอัตโนมัติ (กว้างสูงสุด 1200px)
+      // ปรับย่อขนาดรูปอัตโนมัติ (กว้างสูงสุด 800px เพื่อย่อขนาดไฟล์ลง)
       const canvas = document.createElement("canvas");
       let width = img.width;
       let height = img.height;
-      const max_size = 1200;
+      const max_size = 800;
 
       if (width > height) {
         if (width > max_size) {
@@ -995,7 +995,8 @@ function uploadFileFromDevice(id) {
       const ctx = canvas.getContext("2d");
       ctx.drawImage(img, 0, 0, width, height);
 
-      const compressedBase64 = canvas.toDataURL("image/jpeg", 0.8);
+      // บีบอัดความละเอียดเหลือ 0.6 (ขนาดไฟล์จะเหลือเพียงนิดเดียว)
+      const compressedBase64 = canvas.toDataURL("image/jpeg", 0.6);
 
       fetch(SCRIPT_URL, {
         method: "POST",
