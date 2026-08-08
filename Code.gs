@@ -50,6 +50,7 @@ function doPost(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+// 1. ฟังก์ชันแก้ไขข้อมูลการจอง (ไม่ส่ง LINE)
 function editBookingData(payload) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = ss.getSheetByName(SHEET_NAME);
@@ -57,20 +58,21 @@ function editBookingData(payload) {
 
   for (let i = 1; i < data.length; i++) {
     if (data[i][0] == payload.id) {
-      sheet.getRange(i + 1, 2).setValue(payload.name);
-      sheet.getRange(i + 1, 3).setValue(payload.position);
-      sheet.getRange(i + 1, 4).setValue(payload.room);
-      sheet.getRange(i + 1, 5).setValue(payload.building);
-      sheet.getRange(i + 1, 6).setValue(payload.date);
-      sheet.getRange(i + 1, 7).setValue(payload.startTime);
-      sheet.getRange(i + 1, 8).setValue(payload.people);
-      sheet.getRange(i + 1, 10).setValue(payload.type);
+      sheet.getRange(i + 1, 2).setValue(payload.name);       // B: Name
+      sheet.getRange(i + 1, 3).setValue(payload.position);   // C: Position
+      sheet.getRange(i + 1, 4).setValue(payload.room);       // D: Room
+      sheet.getRange(i + 1, 5).setValue(payload.building);   // E: Building
+      sheet.getRange(i + 1, 6).setValue(payload.date);       // F: Date
+      sheet.getRange(i + 1, 7).setValue(payload.startTime);  // G: StartTime
+      sheet.getRange(i + 1, 8).setValue(payload.people);     // H: People
+      sheet.getRange(i + 1, 10).setValue(payload.type);      // J: Type
       return true;
     }
   }
   return false;
 }
 
+// 2. ฟังก์ชันอัปโหลดรูปภาพลง Google Drive บันทึกลงคอลัมน์ K เป็น Plain Text (ไม่ส่ง LINE)
 function uploadMeetingImageToColumnK(payload) {
   try {
     const id = payload.id;
@@ -101,7 +103,9 @@ function uploadMeetingImageToColumnK(payload) {
 
     for (let i = 1; i < data.length; i++) {
       if (String(data[i][0]).trim() === String(id).trim()) {
-        sheet.getRange(i + 1, 11).setValue(viewUrl); // คอลัมน์ K
+        const cell = sheet.getRange(i + 1, 11); // คอลัมน์ K (index 11)
+        cell.setNumberFormat("@");             // กำหนดรูปแบบเป็น Plain Text
+        cell.setValue(String(viewUrl));        // บันทึกลิงก์ข้อความ
         return { ok: true, status: "success", fileUrl: viewUrl };
       }
     }
@@ -112,6 +116,7 @@ function uploadMeetingImageToColumnK(payload) {
   }
 }
 
+// 3. ฟังก์ชันเปลี่ยนสถานะ (อนุมัติ/ไม่อนุมัติ) -> ส่งการแจ้งเตือนเข้า LINE
 function updateBookingStatus(id, status) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = ss.getSheetByName(SHEET_NAME);
@@ -131,6 +136,9 @@ function updateBookingStatus(id, status) {
   return false;
 }
 
+// ======================================
+// LINE Notification Functions
+// ======================================
 const THAI_MONTHS = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
 
 function formatThaiDate(value) {
