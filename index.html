@@ -51,7 +51,6 @@
       border: 1px solid var(--line-soft);
     }
 
-    /* ---------- Header ---------- */
     .header {
       position: relative;
       padding: 30px 32px 26px;
@@ -104,7 +103,6 @@
       color: #C9D4FF;
     }
 
-    /* ---------- Form body ---------- */
     .form-body { padding: 28px 32px 32px; }
 
     .field { margin-top: 20px; }
@@ -152,7 +150,6 @@
       box-shadow: 0 0 0 4px var(--primary-05);
     }
 
-    /* ---------- Button ---------- */
     button.submit {
       width: 100%;
       margin-top: 28px;
@@ -178,7 +175,6 @@
     button.submit:active { transform: translateY(1px); }
     button.submit:disabled { opacity: 0.65; cursor: progress; }
 
-    /* ---------- Result ---------- */
     .success {
       margin-top: 18px;
       padding: 14px 16px;
@@ -383,13 +379,14 @@ function submitForm(){
   const originalLabel = btn.innerHTML;
   btn.innerHTML = "กำลังส่งคำขอ...";
 
+  const formData = new URLSearchParams();
+  formData.append("action", "submitBooking");
+  formData.append("payload", JSON.stringify(payload));
+
   fetch(SCRIPT_URL, {
     method: "POST",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify({
-      action: "submitBooking",
-      payload: payload
-    })
+    headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+    body: formData.toString()
   })
   .then(res => res.json())
   .then(response => {
