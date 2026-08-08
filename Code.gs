@@ -43,7 +43,7 @@ function doPost(e) {
       result = uploadMeetingImageToColumnK(data.payload);
     }
   } catch (err) {
-    result = { status: "error", message: err.message };
+    result = { ok: false, errorMessage: err.message };
   }
 
   return ContentService.createTextOutput(JSON.stringify(result))
@@ -72,13 +72,14 @@ function editBookingData(payload) {
   return false;
 }
 
-// 2. ฟังก์ชันอัปโหลดรูปภาพลง Google Drive บันทึกลงคอลัมน์ K (ไม่เด้ง LINE)
+// 2. ฟังก์ชันอัปโหลดรูปภาพลง Google Drive และซิงค์ลงคอลัมน์ K (ไม่เด้ง LINE)
 function uploadMeetingImageToColumnK(payload) {
   try {
     const id = payload.id;
     const base64Data = payload.base64Data;
     const fileName = payload.fileName || `Meeting_${id}.jpg`;
 
+    // จัดการโฟลเดอร์ใน Google Drive
     let folder;
     const folders = DriveApp.getFoldersByName("PRTC_Meeting_Photos");
     if (folders.hasNext()) {
@@ -96,24 +97,25 @@ function uploadMeetingImageToColumnK(payload) {
     
     const viewUrl = file.getUrl();
 
+    // บันทึกลิงก์เข้าคอลัมน์ K (คอลัมน์ที่ 11)
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName(SHEET_NAME);
     const data = sheet.getDataRange().getValues();
 
     for (let i = 1; i < data.length; i++) {
       if (data[i][0] == id) {
-        sheet.getRange(i + 1, 11).setValue(viewUrl); // คอลัมน์ K = index 11
-        break;
+        sheet.getRange(i + 1, 11).setValue(viewUrl); // คอลัมน์ K
+        return { ok: true, fileUrl: viewUrl };
       }
     }
 
-    return { ok: true, fileUrl: viewUrl };
+    return { ok: false, errorMessage: "ไม่พบรหัสการจองในแผ่นงาน" };
   } catch (err) {
     return { ok: false, errorMessage: err.message };
   }
 }
 
-// 3. ฟังก์ชันเปลี่ยนสถานะ (อนุมัติ/ไม่อนุมัติ) -> เด้งการแจ้งเตือนเข้า LINE!
+// 3. ฟังก์ชันเปลี่ยนสถานะ (อนุมัติ/ไม่อนุมัติ) -> ส่งการแจ้งเตือนเข้า LINE
 function updateBookingStatus(id, status) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = ss.getSheetByName(SHEET_NAME);
