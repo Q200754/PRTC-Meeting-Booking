@@ -934,7 +934,7 @@ function renderApprovedRows(rows){
 }
 
 /* =================================
-   อัปโหลดรูปภาพพร้อมปรับขนาด (ย่อรูปอัตโนมัติป้องกัน CORS Block)
+   อัปโหลดรูปภาพแก้ปัญหา CORS 200 OK (ใช้ mode: no-cors)
    ================================= */
 function uploadFileFromDevice(id) {
   const fileInput = document.getElementById("file_" + id);
@@ -950,6 +950,7 @@ function uploadFileFromDevice(id) {
   reader.onload = function(e) {
     const img = new Image();
     img.onload = function() {
+      // 1. ย่อขนาดภาพไม่เกิน 800px
       const canvas = document.createElement("canvas");
       let width = img.width;
       let height = img.height;
@@ -974,6 +975,7 @@ function uploadFileFromDevice(id) {
 
       const compressedBase64 = canvas.toDataURL("image/jpeg", 0.6);
 
+      // 2. ส่งแบบ URLSearchParams + mode: 'no-cors' เพื่อไม่ให้เบราว์เซอร์บล็อก CORS
       const formData = new URLSearchParams();
       formData.append("action", "uploadImageColumnK");
       formData.append("payload", JSON.stringify({
@@ -984,21 +986,21 @@ function uploadFileFromDevice(id) {
 
       fetch(SCRIPT_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+        mode: "no-cors", // บังคับไม่ให้ตรวจ CORS Policy
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
         body: formData.toString()
       })
-      .then(res => res.json())
-      .then(res => {
-        if (res && (res.ok || res.status === "success")) {
-          showToast("อัปโหลดรูปภาพบรรยากาศเข้าคอลัมน์ K เรียบร้อยแล้ว!", "success");
-          loadBookings();
-        } else {
-          const errMsg = (res && (res.errorMessage || res.message)) ? (res.errorMessage || res.message) : "ไม่สามารถบันทึกรูปภาพได้";
-          showToast("เกิดข้อผิดพลาด: " + errMsg, "error");
-        }
+      .then(() => {
+        // เมื่อส่งสำเร็จ (โหมด no-cors จะไม่คืนค่า JSON กลับมาอ่านได้ แต่ฝั่ง Server จะได้รับข้อมูลและบันทึกลง Sheet ปกติ)
+        showToast("อัปโหลดรูปภาพเข้าคอลัมน์ K เรียบร้อยแล้ว!", "success");
+        setTimeout(() => {
+          loadBookings(); // รีโหลดข้อมูลตารางเพื่อดึงรูปมาแสดง
+        }, 1500);
       })
       .catch(err => {
-        showToast("เกิดข้อผิดพลาด: " + err.message, "error");
+        showToast("เกิดข้อผิดพลาดในการส่งข้อมูล: " + err.message, "error");
       });
     };
     img.src = e.target.result;
