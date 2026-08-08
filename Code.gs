@@ -50,7 +50,6 @@ function doPost(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// 1. ฟังก์ชันแก้ไขข้อมูลการจอง (ไม่เด้ง LINE)
 function editBookingData(payload) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = ss.getSheetByName(SHEET_NAME);
@@ -58,28 +57,26 @@ function editBookingData(payload) {
 
   for (let i = 1; i < data.length; i++) {
     if (data[i][0] == payload.id) {
-      sheet.getRange(i + 1, 2).setValue(payload.name);       // B: Name
-      sheet.getRange(i + 1, 3).setValue(payload.position);   // C: Position
-      sheet.getRange(i + 1, 4).setValue(payload.room);       // D: Room
-      sheet.getRange(i + 1, 5).setValue(payload.building);   // E: Building
-      sheet.getRange(i + 1, 6).setValue(payload.date);       // F: Date
-      sheet.getRange(i + 1, 7).setValue(payload.startTime);  // G: StartTime
-      sheet.getRange(i + 1, 8).setValue(payload.people);     // H: People
-      sheet.getRange(i + 1, 10).setValue(payload.type);      // J: Type
+      sheet.getRange(i + 1, 2).setValue(payload.name);
+      sheet.getRange(i + 1, 3).setValue(payload.position);
+      sheet.getRange(i + 1, 4).setValue(payload.room);
+      sheet.getRange(i + 1, 5).setValue(payload.building);
+      sheet.getRange(i + 1, 6).setValue(payload.date);
+      sheet.getRange(i + 1, 7).setValue(payload.startTime);
+      sheet.getRange(i + 1, 8).setValue(payload.people);
+      sheet.getRange(i + 1, 10).setValue(payload.type);
       return true;
     }
   }
   return false;
 }
 
-// 2. ฟังก์ชันอัปโหลดรูปภาพลง Google Drive และซิงค์ลงคอลัมน์ K (ไม่เด้ง LINE)
 function uploadMeetingImageToColumnK(payload) {
   try {
     const id = payload.id;
     const base64Data = payload.base64Data;
     const fileName = payload.fileName || `Meeting_${id}.jpg`;
 
-    // จัดการโฟลเดอร์ใน Google Drive
     let folder;
     const folders = DriveApp.getFoldersByName("PRTC_Meeting_Photos");
     if (folders.hasNext()) {
@@ -88,8 +85,9 @@ function uploadMeetingImageToColumnK(payload) {
       folder = DriveApp.createFolder("PRTC_Meeting_Photos");
     }
 
-    const contentType = base64Data.substring(base64Data.indexOf(":") + 1, base64Data.indexOf(";"));
-    const bytes = Utilities.base64Decode(base64Data.split(",")[1]);
+    const splitData = base64Data.split(",");
+    const contentType = splitData[0].match(/:(.*?);/)[1];
+    const bytes = Utilities.base64Decode(splitData[1]);
     const blob = Utilities.newBlob(bytes, contentType, fileName);
 
     const file = folder.createFile(blob);
@@ -97,25 +95,23 @@ function uploadMeetingImageToColumnK(payload) {
     
     const viewUrl = file.getUrl();
 
-    // บันทึกลิงก์เข้าคอลัมน์ K (คอลัมน์ที่ 11)
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName(SHEET_NAME);
     const data = sheet.getDataRange().getValues();
 
     for (let i = 1; i < data.length; i++) {
-      if (data[i][0] == id) {
+      if (String(data[i][0]).trim() === String(id).trim()) {
         sheet.getRange(i + 1, 11).setValue(viewUrl); // คอลัมน์ K
-        return { ok: true, fileUrl: viewUrl };
+        return { ok: true, status: "success", fileUrl: viewUrl };
       }
     }
 
-    return { ok: false, errorMessage: "ไม่พบรหัสการจองในแผ่นงาน" };
+    return { ok: false, errorMessage: "ไม่พบ Booking ID ใน Google Sheets" };
   } catch (err) {
     return { ok: false, errorMessage: err.message };
   }
 }
 
-// 3. ฟังก์ชันเปลี่ยนสถานะ (อนุมัติ/ไม่อนุมัติ) -> ส่งการแจ้งเตือนเข้า LINE
 function updateBookingStatus(id, status) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = ss.getSheetByName(SHEET_NAME);
@@ -135,9 +131,6 @@ function updateBookingStatus(id, status) {
   return false;
 }
 
-// ======================================
-// LINE Notification Functions
-// ======================================
 const THAI_MONTHS = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
 
 function formatThaiDate(value) {
