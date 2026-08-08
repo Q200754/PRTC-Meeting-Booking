@@ -983,11 +983,13 @@ function uploadFileFromDevice(id) {
     })
     .then(res => res.json())
     .then(res => {
-      if (res.ok) {
+      // ตรวจสอบทั้ง res.ok และ res.status
+      if (res && (res.ok || res.status === "success")) {
         showToast("อัปโหลดรูปภาพบรรยากาศเข้าคอลัมน์ K เรียบร้อยแล้ว!", "success");
         loadBookings();
       } else {
-        showToast("เกิดข้อผิดพลาด: " + res.errorMessage, "error");
+        const errMsg = (res && (res.errorMessage || res.message)) ? (res.errorMessage || res.message) : "ไม่สามารถบันทึกรูปภาพได้";
+        showToast("เกิดข้อผิดพลาด: " + errMsg, "error");
       }
     })
     .catch(err => {
