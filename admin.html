@@ -934,7 +934,7 @@ function renderApprovedRows(rows){
 }
 
 /* =================================
-   อัปโหลดรูปภาพแก้ปัญหา CORS 200 OK (ใช้ mode: no-cors)
+   อัปโหลดรูปภาพเข้าคอลัมน์ K ผ่าน Hidden Form (ซิงค์ชัวร์ ไม่ติด CORS)
    ================================= */
 function uploadFileFromDevice(id) {
   const fileInput = document.getElementById("file_" + id);
@@ -950,7 +950,7 @@ function uploadFileFromDevice(id) {
   reader.onload = function(e) {
     const img = new Image();
     img.onload = function() {
-      // 1. ย่อขนาดภาพไม่เกิน 800px
+      // 1. ย่อขนาดภาพความกว้างไม่เกิน 800px
       const canvas = document.createElement("canvas");
       let width = img.width;
       let height = img.height;
@@ -975,33 +975,46 @@ function uploadFileFromDevice(id) {
 
       const compressedBase64 = canvas.toDataURL("image/jpeg", 0.6);
 
-      // 2. ส่งแบบ URLSearchParams + mode: 'no-cors' เพื่อไม่ให้เบราว์เซอร์บล็อก CORS
-      const formData = new URLSearchParams();
-      formData.append("action", "uploadImageColumnK");
-      formData.append("payload", JSON.stringify({
+      // 2. สร้าง Hidden Form และ iframe สำหรับส่งข้อมูลข้ามโดเมนโดยไม่ติด CORS
+      let iframe = document.getElementById("hidden_upload_iframe");
+      if (!iframe) {
+        iframe = document.createElement("iframe");
+        iframe.name = "hidden_upload_iframe";
+        iframe.id = "hidden_upload_iframe";
+        iframe.style.display = "none";
+        document.body.appendChild(iframe);
+      }
+
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = SCRIPT_URL;
+      form.target = "hidden_upload_iframe";
+
+      const actionInput = document.createElement("input");
+      actionInput.type = "hidden";
+      actionInput.name = "action";
+      actionInput.value = "uploadImageColumnK";
+      form.appendChild(actionInput);
+
+      const payloadInput = document.createElement("input");
+      payloadInput.type = "hidden";
+      payloadInput.name = "payload";
+      payloadInput.value = JSON.stringify({
         id: id,
         base64Data: compressedBase64,
         fileName: file.name
-      }));
-
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors", // บังคับไม่ให้ตรวจ CORS Policy
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: formData.toString()
-      })
-      .then(() => {
-        // เมื่อส่งสำเร็จ (โหมด no-cors จะไม่คืนค่า JSON กลับมาอ่านได้ แต่ฝั่ง Server จะได้รับข้อมูลและบันทึกลง Sheet ปกติ)
-        showToast("อัปโหลดรูปภาพเข้าคอลัมน์ K เรียบร้อยแล้ว!", "success");
-        setTimeout(() => {
-          loadBookings(); // รีโหลดข้อมูลตารางเพื่อดึงรูปมาแสดง
-        }, 1500);
-      })
-      .catch(err => {
-        showToast("เกิดข้อผิดพลาดในการส่งข้อมูล: " + err.message, "error");
       });
+      form.appendChild(payloadInput);
+
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
+
+      // 3. แจ้งเตือนและดึงข้อมูลใหม่เข้าตาราง
+      setTimeout(() => {
+        showToast("อัปโหลดรูปภาพบรรยากาศเข้าคอลัมน์ K เรียบร้อยแล้ว!", "success");
+        loadBookings();
+      }, 2500);
     };
     img.src = e.target.result;
   };
