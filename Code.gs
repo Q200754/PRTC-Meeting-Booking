@@ -129,7 +129,6 @@ function uploadMeetingImageToColumnK(payload) {
   }
 }
 
-// 3. ฟังก์ชันเปลี่ยนสถานะ (อนุมัติ/ไม่อนุมัติ) -> ส่งแจ้งเตือน LINE และคืนค่า ok: true
 function updateBookingStatus(id, status) {
   try {
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
@@ -143,11 +142,15 @@ function updateBookingStatus(id, status) {
       if (rowId === searchId) {
         sheet.getRange(i + 1, 9).setValue(status);
         sheet.getRange(i + 1, 12).setValue(new Date());
-
-        if (status === "อนุมัติ") sendApproveLine(data[i]);
-        if (status === "ไม่อนุมัติ") sendRejectLine(data[i]);
-
         SpreadsheetApp.flush();
+
+        try {
+          if (status === "อนุมัติ") sendApproveLine(data[i]);
+          if (status === "ไม่อนุมัติ") sendRejectLine(data[i]);
+        } catch (lineErr) {
+          Logger.log("LINE Send Error: " + lineErr.message);
+        }
+
         return { ok: true, status: "success" };
       }
     }
@@ -286,18 +289,23 @@ function sendRejectLine(row) {
 }
 
 function sendLineFlex(bubble, altText) {
-  const payload = {
-    messages: [{ type: "flex", altText: altText || "แจ้งเตือนจากระบบจองห้องประชุม", contents: bubble }]
-  };
+  try {
+    const payload = {
+      messages: [{ type: "flex", altText: altText || "แจ้งเตือนจากระบบจองห้องประชุม", contents: bubble }]
+    };
 
-  UrlFetchApp.fetch("https://api.line.me/v2/bot/message/broadcast", {
-    method: "post",
-    headers: {
-      "Authorization": "Bearer " + LINE_CHANNEL_ACCESS_TOKEN,
-      "Content-Type": "application/json"
-    },
-    payload: JSON.stringify(payload)
-  });
+    UrlFetchApp.fetch("https://api.line.me/v2/bot/message/broadcast", {
+      method: "post",
+      headers: {
+        "Authorization": "Bearer " + LINE_CHANNEL_ACCESS_TOKEN,
+        "Content-Type": "application/json"
+      },
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    });
+  } catch (e) {
+    Logger.log("LINE Fetch Exception: " + e.message);
+  }
 }
 
 function submitBooking(data) {
