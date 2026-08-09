@@ -933,9 +933,6 @@ function renderApprovedRows(rows){
   });
 }
 
-/* =================================
-   อัปโหลดรูปภาพเข้าคอลัมน์ K ผ่าน Hidden Form (ซิงค์ชัวร์ ไม่ติด CORS)
-   ================================= */
 function uploadFileFromDevice(id) {
   const fileInput = document.getElementById("file_" + id);
   if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
@@ -1084,35 +1081,50 @@ function submitEditBooking() {
 }
 
 function approve(id){
-  updateStatus(id, "อนุมัติ", "อนุมัติรายการ " + id + " และแจ้งเข้า LINE เรียบร้อยแล้ว");
+  updateStatus(id, "อนุมัติ", "อนุมัติรายการ " + id + " เรียบร้อยแล้ว");
 }
 
 function reject(id){
-  updateStatus(id, "ไม่อนุมัติ", "ปฏิเสธรายการ " + id + " และแจ้งเข้า LINE เรียบร้อยแล้ว");
+  updateStatus(id, "ไม่อนุมัติ", "ปฏิเสธรายการ " + id + " เรียบร้อยแล้ว");
 }
 
 function updateStatus(id, status, successMessage){
-  const formData = new URLSearchParams();
-  formData.append("action", "updateStatus");
-  formData.append("payload", JSON.stringify({ id: id, status: status }));
+  showToast("กำลังอัปเดตสถานะ...", "success");
 
-  fetch(SCRIPT_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-    body: formData.toString()
-  })
-  .then(res => res.json())
-  .then(res => {
-    if (res.ok) {
-      showToast(successMessage, "success");
-      loadBookings();
-    } else {
-      showToast("อัปเดตไม่สำเร็จ", "error");
-    }
-  })
-  .catch(err => {
-    showToast("อัปเดตไม่สำเร็จ: " + err.message, "error");
-  });
+  let iframe = document.getElementById("hidden_status_iframe");
+  if (!iframe) {
+    iframe = document.createElement("iframe");
+    iframe.name = "hidden_status_iframe";
+    iframe.id = "hidden_status_iframe";
+    iframe.style.display = "none";
+    document.body.appendChild(iframe);
+  }
+
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = SCRIPT_URL;
+  form.target = "hidden_status_iframe";
+
+  const actionInput = document.createElement("input");
+  actionInput.type = "hidden";
+  actionInput.name = "action";
+  actionInput.value = "updateStatus";
+  form.appendChild(actionInput);
+
+  const payloadInput = document.createElement("input");
+  payloadInput.type = "hidden";
+  payloadInput.name = "payload";
+  payloadInput.value = JSON.stringify({ id: id, status: status });
+  form.appendChild(payloadInput);
+
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+
+  setTimeout(() => {
+    showToast(successMessage, "success");
+    loadBookings();
+  }, 2000);
 }
 
 function askDelete(id){
