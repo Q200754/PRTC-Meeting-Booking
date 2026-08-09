@@ -45,7 +45,7 @@ function doPost(e) {
     if (data.action === "submitBooking") {
       result = submitBooking(data.payload);
     } else if (data.action === "updateStatus") {
-      result = { ok: updateBookingStatus(data.payload.id, data.payload.status) };
+      result = updateBookingStatus(data.payload.id, data.payload.status);
     } else if (data.action === "deleteBooking") {
       result = { ok: deleteBooking(data.payload.id) };
     } else if (data.action === "editBooking") {
@@ -69,7 +69,7 @@ function editBookingData(payload) {
   const data = sheet.getDataRange().getValues();
 
   for (let i = 1; i < data.length; i++) {
-    if (data[i][0] == payload.id) {
+    if (String(data[i][0]).trim() === String(payload.id).trim()) {
       sheet.getRange(i + 1, 2).setValue(payload.name);
       sheet.getRange(i + 1, 3).setValue(payload.position);
       sheet.getRange(i + 1, 4).setValue(payload.room);
@@ -115,7 +115,7 @@ function uploadMeetingImageToColumnK(payload) {
     for (let i = 1; i < data.length; i++) {
       const sheetId = String(data[i][0]).trim();
       if (sheetId === id) {
-        const cell = sheet.getRange(i + 1, 11); // คอลัมน์ K
+        const cell = sheet.getRange(i + 1, 11);
         cell.setNumberFormat("@");
         cell.setValue(String(viewUrl));
         SpreadsheetApp.flush();
@@ -129,28 +129,31 @@ function uploadMeetingImageToColumnK(payload) {
   }
 }
 
-// 3. ฟังก์ชันเปลี่ยนสถานะ (อนุมัติ/ไม่อนุมัติ) -> ส่งการแจ้งเตือนเข้า LINE
+// 3. ฟังก์ชันเปลี่ยนสถานะ (อนุมัติ/ไม่อนุมัติ) -> ส่งแจ้งเตือน LINE และคืนค่า ok: true
 function updateBookingStatus(id, status) {
   try {
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName(SHEET_NAME);
     const data = sheet.getDataRange().getValues();
 
-    for (let i = 1; i < data.length; i++) {
-      if (String(data[i][0]).trim() === String(id).trim()) {
-        sheet.getRange(i + 1, 9).setValue(status);       // คอลัมน์ I = สถานะ
-        sheet.getRange(i + 1, 12).setValue(new Date());  // คอลัมน์ L = เวลาอัปเดต
+    const searchId = String(id).trim();
 
-        // ส่งการแจ้งเตือนเข้า LINE
+    for (let i = 1; i < data.length; i++) {
+      const rowId = String(data[i][0]).trim();
+      if (rowId === searchId) {
+        sheet.getRange(i + 1, 9).setValue(status);
+        sheet.getRange(i + 1, 12).setValue(new Date());
+
         if (status === "อนุมัติ") sendApproveLine(data[i]);
         if (status === "ไม่อนุมัติ") sendRejectLine(data[i]);
 
-        return true;
+        SpreadsheetApp.flush();
+        return { ok: true, status: "success" };
       }
     }
-    return false;
+    return { ok: false, errorMessage: "ไม่พบ Booking ID ในระบบ" };
   } catch (err) {
-    return false;
+    return { ok: false, errorMessage: err.message };
   }
 }
 
@@ -377,7 +380,7 @@ function deleteBooking(id) {
   const data = sheet.getDataRange().getValues();
 
   for (let i = 1; i < data.length; i++) {
-    if (data[i][0] == id) {
+    if (String(data[i][0]).trim() === String(id).trim()) {
       sheet.deleteRow(i + 1);
       return true;
     }
