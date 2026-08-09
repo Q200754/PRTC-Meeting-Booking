@@ -14,13 +14,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-<!-- โค้ดแก้ปัญหา Safari / iOS ป้องกันการโดนบล็อก iFrame -->
-<script>
-  if (window.top !== window.self) {
-    window.top.location.href = window.self.location.href;
-  }
-</script>
-
 <style>
 
 :root{
@@ -60,9 +53,119 @@ body{
 .container{
   max-width:1180px;
   margin:auto;
+  display: none;
 }
 
-/* ---------- Top bar ---------- */
+.login-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.login-card {
+  background: #FFFFFF;
+  width: 100%;
+  max-width: 380px;
+  border-radius: 20px;
+  padding: 32px 28px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  text-align: center;
+}
+
+.login-card .brand-icon-lg {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dk) 100%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  box-shadow: 0 10px 20px -6px rgba(47, 75, 214, 0.4);
+}
+
+.login-card h2 {
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.login-card p {
+  margin: 0 0 24px;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+}
+
+.login-field {
+  text-align: left;
+  margin-bottom: 16px;
+}
+
+.login-field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.login-field input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1.5px solid var(--line);
+  background: #FAFBFE;
+  font-family: inherit;
+  font-size: 14.5px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.login-field input:focus {
+  border-color: var(--primary);
+  background: #fff;
+  box-shadow: 0 0 0 4px var(--primary-05);
+}
+
+.btn-login {
+  width: 100%;
+  margin-top: 10px;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  background: var(--primary);
+  color: #fff;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 20px -6px rgba(47, 75, 214, 0.5);
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.btn-login:hover { background: var(--primary-dk); }
+.btn-login:active { transform: translateY(1px); }
+
+.login-error {
+  margin-top: 14px;
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--danger-05);
+  border: 1px solid #F6C6C6;
+  color: var(--danger);
+  font-size: 13px;
+  font-weight: 600;
+  display: none;
+}
+
 .topbar{
   display:flex;
   align-items:center;
@@ -166,13 +269,13 @@ body{
 .back-btn:hover{ border-color: var(--primary); color: var(--primary-dk); background: var(--primary-05); }
 .back-btn:active{ transform: translateY(1px); }
 
-/* ---------- Card ---------- */
 .card{
   background: var(--card);
   border-radius: 20px;
   padding: 26px;
   box-shadow: var(--shadow);
   border: 1px solid var(--line-soft);
+  margin-bottom: 24px;
 }
 
 .card-title{
@@ -185,7 +288,6 @@ body{
   color: var(--ink);
 }
 
-/* ---------- Table ---------- */
 table{
   width:100%;
   border-collapse: collapse;
@@ -236,6 +338,7 @@ tbody tr:last-child td{ border-bottom: none; }
 }
 
 .badge-pending{ background: var(--amber-05); color: var(--amber); border: 1px solid #F5DFA8; }
+.badge-approved{ background: var(--accent-05); color: var(--accent); border: 1px solid #CBEFDD; }
 .badge-type{ background: var(--primary-05); color: var(--primary-dk); border: 1px solid #D6DFFB; }
 
 .actions{
@@ -264,8 +367,23 @@ button.action-btn:active{ transform: translateY(1px); }
 .approve{ background: var(--accent); }
 .reject{ background: var(--danger); }
 .delete{ background: var(--ink-faint); }
+.edit-btn{ background: var(--amber); }
+.upload-btn{ background: var(--primary); }
 
-/* ---------- Loading / empty states ---------- */
+.file-input-custom {
+  font-size: 11px;
+  max-width: 140px;
+}
+
+.img-thumb {
+  width: 42px;
+  height: 42px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  cursor: pointer;
+}
+
 .state-row td{
   padding: 60px 20px !important;
   text-align: center;
@@ -289,7 +407,6 @@ button.action-btn:active{ transform: translateY(1px); }
   animation: spin 0.8s linear infinite;
 }
 
-/* ---------- Toasts ---------- */
 #toastStack{
   position: fixed;
   top: 20px;
@@ -330,7 +447,6 @@ button.action-btn:active{ transform: translateY(1px); }
 }
 .toast.leaving{ animation: toastOut 0.2s ease forwards; }
 
-/* ---------- Confirm modal ---------- */
 .modal-backdrop{
   position: fixed; inset: 0;
   background: rgba(20,26,44,0.45);
@@ -347,7 +463,7 @@ button.action-btn:active{ transform: translateY(1px); }
   background:#fff;
   border-radius: 18px;
   padding: 26px;
-  max-width: 360px;
+  max-width: 440px;
   width: 100%;
   box-shadow: 0 30px 60px -20px rgba(20,26,44,0.4);
 }
@@ -361,9 +477,21 @@ button.action-btn:active{ transform: translateY(1px); }
 }
 
 .modal-box h4{ margin: 0 0 8px; font-size: 16px; font-weight: 800; color: var(--ink); }
-.modal-box p{ margin: 0 0 22px; font-size: 13.5px; color: var(--ink-soft); line-height: 1.6; }
+.modal-box p{ margin: 0 0 16px; font-size: 13.5px; color: var(--ink-soft); line-height: 1.6; }
 
-.modal-actions{ display:flex; gap: 10px; }
+.modal-field { text-align: left; margin-bottom: 12px; }
+.modal-field label { display: block; font-size: 12.5px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+.modal-field input, .modal-field select {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1.5px solid var(--line);
+  font-family: inherit;
+  font-size: 13.5px;
+  outline: none;
+}
+
+.modal-actions{ display:flex; gap: 10px; margin-top: 18px; }
 .modal-actions button{
   flex: 1;
   padding: 11px;
@@ -380,15 +508,10 @@ button.action-btn:active{ transform: translateY(1px); }
 .modal-confirm{ background: var(--danger); color: #fff; }
 .modal-confirm:hover{ filter: brightness(1.08); }
 
-/* ---------- Responsive: card layout on small screens ---------- */
 @media (max-width: 860px) {
-
   .topbar{ flex-direction: column; align-items: flex-start; }
-
   table, thead, tbody, th, td, tr{ display: block; }
-
   thead{ display: none; }
-
   tbody tr{
     margin-bottom: 14px;
     border: 1px solid var(--line-soft);
@@ -396,9 +519,7 @@ button.action-btn:active{ transform: translateY(1px); }
     padding: 6px 4px;
     background: #FAFBFE;
   }
-
   tbody tr:hover{ background: var(--primary-05); }
-
   tbody td{
     display:flex;
     justify-content: space-between;
@@ -408,9 +529,7 @@ button.action-btn:active{ transform: translateY(1px); }
     padding: 10px 14px;
     text-align: right;
   }
-
   tbody tr td:last-child{ border-bottom: none; }
-
   tbody td::before{
     content: attr(data-label);
     font-size: 11.5px;
@@ -420,7 +539,6 @@ button.action-btn:active{ transform: translateY(1px); }
     color: var(--ink-faint);
     text-align: left;
   }
-
   .actions{ justify-content: flex-end; }
 }
 
@@ -429,6 +547,30 @@ button.action-btn:active{ transform: translateY(1px); }
 </head>
 
 <body>
+
+<div class="login-backdrop" id="loginModal">
+  <div class="login-card">
+    <div class="brand-icon-lg">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <h2>เข้าสู่ระบบ Admin</h2>
+    <p>กรุณาระบุ Username และ Password เพื่อเข้าใช้งาน</p>
+    
+    <div class="login-field">
+      <label for="adminUser">Username</label>
+      <input type="text" id="adminUser" placeholder="ชื่อผู้ใช้งาน">
+    </div>
+
+    <div class="login-field">
+      <label for="adminPass">Password</label>
+      <input type="password" id="adminPass" placeholder="รหัสผ่าน" onkeydown="if(event.key === 'Enter') handleLogin()">
+    </div>
+
+    <button class="btn-login" onclick="handleLogin()">เข้าสู่ระบบ</button>
+
+    <div class="login-error" id="loginError">⚠️ Username หรือ Password ไม่ถูกต้อง</div>
+  </div>
+</div>
 
 <div id="toastStack"></div>
 
@@ -446,7 +588,50 @@ button.action-btn:active{ transform: translateY(1px); }
   </div>
 </div>
 
-<div class="container">
+<div class="modal-backdrop" id="editModal">
+  <div class="modal-box">
+    <div class="modal-icon" style="background: var(--amber-05);">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B7791F" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    </div>
+    <h4>แก้ไขข้อมูลการจอง</h4>
+    <p>ปรับเปลี่ยนรายละเอียดของรหัส: <b id="editBookingIdText"></b></p>
+
+    <div class="modal-field"><label>ชื่อผู้จอง</label><input type="text" id="editName"></div>
+    <div class="modal-field"><label>ตำแหน่ง/ฝ่าย</label><input type="text" id="editPosition"></div>
+    <div class="modal-field"><label>ห้องประชุม</label><input type="text" id="editRoom"></div>
+    <div class="modal-field">
+      <label>อาคาร</label>
+      <select id="editBuilding">
+        <option value="อาคารหกชั้น">อาคารหกชั้น</option>
+        <option value="อาคารวัฒนาทร">อาคารวัฒนาทร</option>
+      </select>
+    </div>
+    <div style="display:flex; gap:10px;">
+      <div class="modal-field" style="flex:1;"><label>วันที่</label><input type="date" id="editDate"></div>
+      <div class="modal-field" style="flex:1;"><label>เวลาเริ่ม</label><input type="time" id="editStartTime"></div>
+    </div>
+    <div style="display:flex; gap:10px;">
+      <div class="modal-field" style="flex:1;"><label>จำนวนคน</label><input type="number" id="editPeople"></div>
+      <div class="modal-field" style="flex:1;">
+        <label>ประเภท</label>
+        <select id="editType">
+          <option value="ประชุม">ประชุม</option>
+          <option value="CSR">CSR</option>
+          <option value="ประชุมประจำภาคเรียน">ประชุมประจำภาคเรียน</option>
+          <option value="ประชุมคณะครู">ประชุมคณะครู</option>
+          <option value="อื่นๆ">อื่นๆ</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeEditModal()">ยกเลิก</button>
+      <button class="modal-confirm" style="background: var(--amber);" onclick="submitEditBooking()">บันทึกการแก้ไข</button>
+    </div>
+  </div>
+</div>
+
+<div class="container" id="adminContent">
 
   <div class="topbar">
 
@@ -469,7 +654,7 @@ button.action-btn:active{ transform: translateY(1px); }
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
         รีเฟรช
       </button>
-      <a class="back-btn" href="https://script.google.com/macros/s/AKfycbyCILkpE3hCwf3xpqmf5qn5A47NvPfiCafH6sKBipHHWgvJNNWynueLD0QprDqaSgvMYg/exec" target="_top">
+      <a class="back-btn" href="index.html">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         กลับหน้าจองห้อง
       </a>
@@ -515,22 +700,67 @@ button.action-btn:active{ transform: translateY(1px); }
 
   </div>
 
+  <div class="card">
+
+    <h3 class="card-title">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#17B37C" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      รายการที่อนุมัติแล้ว (จัดการข้อมูล & รูปบรรยากาศ)
+    </h3>
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Booking ID</th>
+          <th>ผู้จอง</th>
+          <th>ห้อง / อาคาร</th>
+          <th>วันที่ / เวลา</th>
+          <th>สถานะ</th>
+          <th>อัปโหลดรูปบรรยากาศ</th>
+          <th>จัดการ</th>
+        </tr>
+      </thead>
+
+      <tbody id="approvedList">
+        <tr class="state-row">
+          <td colspan="7">
+            <div class="state-wrap">
+              <div class="state-title">ยังไม่มีรายการที่อนุมัติแล้ว</div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+
+    </table>
+
+  </div>
+
 </div>
 
 <script>
 
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyauEQupFzr2WsLU59hbZvzf9pj8IvtQHM9XLhZQQ4tJ_QmgnUKcAlz03w03Nez5wC2Xw/exec";
+
 let pendingDeleteId = null;
+let currentEditId = null;
+let allBookingsData = [];
 
-// ---------- โหลดข้อมูลเมื่อเปิดหน้า ----------
-window.onload = function(){
-  loadBookings();
-};
+function handleLogin() {
+  const user = document.getElementById("adminUser").value.trim();
+  const pass = document.getElementById("adminPass").value.trim();
+  const errorBox = document.getElementById("loginError");
 
-// ---------- Toast helper ----------
+  if (user === "piangfah.admin" && pass === "Prtc@2026") {
+    document.getElementById("loginModal").style.display = "none";
+    document.getElementById("adminContent").style.display = "block";
+    loadBookings();
+  } else {
+    errorBox.style.display = "block";
+  }
+}
+
 function showToast(message, type){
-
   const stack = document.getElementById("toastStack");
-
   const toast = document.createElement("div");
   toast.className = "toast " + (type || "success");
 
@@ -539,17 +769,14 @@ function showToast(message, type){
     : '<svg class="toast-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#17B37C" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>';
 
   toast.innerHTML = iconSvg + '<span>' + message + '</span>';
-
   stack.appendChild(toast);
 
   setTimeout(function(){
     toast.classList.add("leaving");
     setTimeout(function(){ toast.remove(); }, 200);
   }, 3200);
-
 }
 
-// ---------- Manual refresh button ----------
 function manualRefresh(){
   const btn = document.getElementById("refreshBtn");
   btn.classList.add("spinning");
@@ -558,66 +785,46 @@ function manualRefresh(){
   });
 }
 
-// =================================
-// โหลด Booking
-// =================================
-
 function loadBookings(onDone){
+  fetch(SCRIPT_URL + "?action=getBookings")
+    .then(res => res.json())
+    .then(response => {
+      if (onDone) onDone();
 
-  google.script.run
-  .withSuccessHandler(function(response){
+      if (!response || !response.ok) {
+        showToast("เกิดข้อผิดพลาด: " + (response ? response.errorMessage : "No response"), "error");
+        renderEmptyState("เกิดข้อผิดพลาด", response ? response.errorMessage : "");
+        return;
+      }
 
-    if(onDone) onDone();
+      const data = response.data;
+      allBookingsData = data;
 
-    console.log("DEBUG RESPONSE:", response);
+      if (!data || data.length <= 1) {
+        renderEmptyState("ยังไม่มีรายการจอง", "เมื่อมีคนจองห้องประชุม รายการจะปรากฏที่นี่");
+        updatePendingCount(0);
+        renderApprovedRows([]);
+        return;
+      }
 
-    if(!response){
-      showToast("ไม่ได้รับข้อมูลตอบกลับจากเซิร์ฟเวอร์", "error");
-      renderEmptyState("เกิดข้อผิดพลาด", "ไม่ได้รับข้อมูลจากเซิร์ฟเวอร์");
-      return;
-    }
+      const pendingRows = data.slice(1).filter(row => row[8] === "รออนุมัติ");
+      const approvedRows = data.slice(1).filter(row => row[8] === "อนุมัติ");
 
-    if(!response.ok){
-      console.error("getBookingsSafe error:", response.errorMessage, response.errorStack);
-      showToast("เกิดข้อผิดพลาด: " + response.errorMessage, "error");
-      renderEmptyState("เกิดข้อผิดพลาด", response.errorMessage);
-      return;
-    }
+      updatePendingCount(pendingRows.length);
 
-    const data = response.data;
+      if (pendingRows.length === 0) {
+        renderEmptyState("ไม่มีรายการรออนุมัติ 🎉", "ทุกคำขอได้รับการดำเนินการแล้ว");
+      } else {
+        renderRows(pendingRows);
+      }
 
-    if(!data || data.length <= 1){
-      renderEmptyState("ยังไม่มีรายการจอง", "เมื่อมีคนจองห้องประชุม รายการจะปรากฏที่นี่");
-      updatePendingCount(0);
-      return;
-    }
-
-    // แสดงเฉพาะรายการที่ "รออนุมัติ" เท่านั้น (index 8)
-    const pendingRows = data.slice(1).filter(function(row){
-      return row[8] === "รออนุมัติ";
-    });
-
-    updatePendingCount(pendingRows.length);
-
-    if(pendingRows.length === 0){
-      renderEmptyState("ไม่มีรายการรออนุมัติ 🎉", "ทุกคำขอได้รับการดำเนินการแล้ว");
-      return;
-    }
-
-    renderRows(pendingRows);
-
-  })
-  .withFailureHandler(function(err){
-
-      if(onDone) onDone();
-
-      console.error(err);
+      renderApprovedRows(approvedRows);
+    })
+    .catch(err => {
+      if (onDone) onDone();
       showToast("โหลดข้อมูลไม่ได้: " + err.message, "error");
       renderEmptyState("โหลดข้อมูลไม่ได้", err.message);
-
-  })
-  .getBookingsSafe();
-
+    });
 }
 
 function updatePendingCount(count){
@@ -625,9 +832,7 @@ function updatePendingCount(count){
 }
 
 function renderEmptyState(title, sub){
-
   const table = document.getElementById("bookingList");
-
   table.innerHTML = `
   <tr class="state-row">
     <td colspan="9">
@@ -639,105 +844,282 @@ function renderEmptyState(title, sub){
     </td>
   </tr>
   `;
-
 }
 
 function renderRows(rows){
-
   const table = document.getElementById("bookingList");
   table.innerHTML = "";
 
   rows.forEach(function(row){
-
     table.innerHTML += `
-
     <tr>
-
       <td data-label="Booking ID"><span class="cell-id">${row[0] || "-"}</span></td>
-
       <td data-label="ผู้จอง">${row[1] || "-"}</td>
-
       <td data-label="ตำแหน่ง/ฝ่าย">${row[2] || "-"}</td>
-
       <td data-label="ห้อง / อาคาร">
         <div class="cell-primary">${row[3] || "-"}</div>
         <div class="cell-sub">${row[4] || "-"}</div>
       </td>
-
       <td data-label="วันที่ / เวลาเริ่ม">
         <div class="cell-primary">${formatDate(row[5])}</div>
         <div class="cell-sub">${row[6] || "-"}</div>
       </td>
-
       <td data-label="จำนวนคน">${row[7] || "-"} คน</td>
-
       <td data-label="ประเภท"><span class="badge badge-type">${row[9] || "-"}</span></td>
-
       <td data-label="สถานะ"><span class="badge badge-pending">🕐 ${row[8] || "-"}</span></td>
-
       <td data-label="จัดการ">
         <div class="actions">
-          <button class="action-btn approve" onclick="approve('${row[0]}')">
-            ✓ อนุมัติ
-          </button>
-          <button class="action-btn reject" onclick="reject('${row[0]}')">
-            ✕ ไม่อนุมัติ
-          </button>
-          <button class="action-btn delete" onclick="askDelete('${row[0]}')">
-            🗑 ลบ
-          </button>
+          <button class="action-btn approve" onclick="approve('${row[0]}')">✓ อนุมัติ</button>
+          <button class="action-btn edit-btn" onclick="openEditModal('${row[0]}')">✏️ แก้ไข</button>
+          <button class="action-btn reject" onclick="reject('${row[0]}')">✕ ไม่อนุมัติ</button>
+          <button class="action-btn delete" onclick="askDelete('${row[0]}')">🗑 ลบ</button>
         </div>
       </td>
-
     </tr>
-
     `;
-
   });
-
 }
 
-// =================================
-// อัปเดตสถานะ
-// =================================
+function renderApprovedRows(rows){
+  const table = document.getElementById("approvedList");
+
+  if (!rows || rows.length === 0) {
+    table.innerHTML = `
+      <tr class="state-row">
+        <td colspan="7">
+          <div class="state-wrap">
+            <div class="state-title">ยังไม่มีรายการที่อนุมัติแล้ว</div>
+          </div>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  table.innerHTML = "";
+
+  rows.forEach(function(row){
+    const currentImg = row[10] || ""; // คอลัมน์ K = index 10
+    const imgPreview = currentImg ? `<img src="${currentImg}" class="img-thumb" title="กดดูรูปเต็ม" onclick="window.open('${currentImg}')">` : "";
+
+    table.innerHTML += `
+    <tr>
+      <td data-label="Booking ID"><span class="cell-id">${row[0] || "-"}</span></td>
+      <td data-label="ผู้จอง">${row[1] || "-"}</td>
+      <td data-label="ห้อง / อาคาร">
+        <div class="cell-primary">${row[3] || "-"}</div>
+        <div class="cell-sub">${row[4] || "-"}</div>
+      </td>
+      <td data-label="วันที่ / เวลา">
+        <div class="cell-primary">${formatDate(row[5])}</div>
+        <div class="cell-sub">${row[6] || "-"}</div>
+      </td>
+      <td data-label="สถานะ"><span class="badge badge-approved">✅ อนุมัติแล้ว</span></td>
+      <td data-label="อัปโหลดรูปบรรยากาศ">
+        <div style="display:flex; align-items:center; gap:6px;">
+          ${imgPreview}
+          <input type="file" id="file_${row[0]}" accept="image/*" class="file-input-custom">
+          <button class="action-btn upload-btn" style="padding:6px 10px; font-size:11.5px;" onclick="uploadFileFromDevice('${row[0]}')">📤 อัปโหลดรูป</button>
+        </div>
+      </td>
+      <td data-label="จัดการ">
+        <div class="actions">
+          <button class="action-btn edit-btn" onclick="openEditModal('${row[0]}')">✏️ แก้ไข</button>
+          <button class="action-btn delete" onclick="askDelete('${row[0]}')">🗑 ลบ</button>
+        </div>
+      </td>
+    </tr>
+    `;
+  });
+}
+
+/* =================================
+   อัปโหลดรูปภาพเข้าคอลัมน์ K ผ่าน Hidden Form (ซิงค์ชัวร์ ไม่ติด CORS)
+   ================================= */
+function uploadFileFromDevice(id) {
+  const fileInput = document.getElementById("file_" + id);
+  if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+    showToast("กรุณาเลือกไฟล์ภาพจากเครื่องก่อน", "error");
+    return;
+  }
+
+  const file = fileInput.files[0];
+  showToast("กำลังประมวลผลและอัปโหลดรูปภาพ...", "success");
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement("canvas");
+      let width = img.width;
+      let height = img.height;
+      const max_size = 800;
+
+      if (width > height) {
+        if (width > max_size) {
+          height *= max_size / width;
+          width = max_size;
+        }
+      } else {
+        if (height > max_size) {
+          width *= max_size / height;
+          height = max_size;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+
+      const compressedBase64 = canvas.toDataURL("image/jpeg", 0.6);
+
+      let iframe = document.getElementById("hidden_upload_iframe");
+      if (!iframe) {
+        iframe = document.createElement("iframe");
+        iframe.name = "hidden_upload_iframe";
+        iframe.id = "hidden_upload_iframe";
+        iframe.style.display = "none";
+        document.body.appendChild(iframe);
+      }
+
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = SCRIPT_URL;
+      form.target = "hidden_upload_iframe";
+
+      const actionInput = document.createElement("input");
+      actionInput.type = "hidden";
+      actionInput.name = "action";
+      actionInput.value = "uploadImageColumnK";
+      form.appendChild(actionInput);
+
+      const payloadInput = document.createElement("input");
+      payloadInput.type = "hidden";
+      payloadInput.name = "payload";
+      payloadInput.value = JSON.stringify({
+        id: id,
+        base64Data: compressedBase64,
+        fileName: file.name
+      });
+      form.appendChild(payloadInput);
+
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
+
+      setTimeout(() => {
+        showToast("อัปโหลดรูปภาพบรรยากาศเข้าคอลัมน์ K เรียบร้อยแล้ว!", "success");
+        loadBookings();
+      }, 2500);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function openEditModal(id) {
+  currentEditId = id;
+  const row = allBookingsData.find(r => r[0] == id);
+  if (!row) return;
+
+  document.getElementById("editBookingIdText").innerText = id;
+  document.getElementById("editName").value = row[1] || "";
+  document.getElementById("editPosition").value = row[2] || "";
+  document.getElementById("editRoom").value = row[3] || "";
+  document.getElementById("editBuilding").value = row[4] || "อาคารหกชั้น";
+  
+  let dateStr = row[5];
+  if(dateStr && dateStr.includes("T")) dateStr = dateStr.split("T")[0];
+  document.getElementById("editDate").value = dateStr || "";
+  document.getElementById("editStartTime").value = row[6] || "";
+  document.getElementById("editPeople").value = row[7] || 1;
+  document.getElementById("editType").value = row[9] || "ประชุม";
+
+  document.getElementById("editModal").classList.add("show");
+}
+
+function closeEditModal() {
+  currentEditId = null;
+  document.getElementById("editModal").classList.remove("show");
+}
+
+function submitEditBooking() {
+  if (!currentEditId) return;
+
+  const payload = {
+    id: currentEditId,
+    name: document.getElementById("editName").value.trim(),
+    position: document.getElementById("editPosition").value.trim(),
+    room: document.getElementById("editRoom").value.trim(),
+    building: document.getElementById("editBuilding").value,
+    date: document.getElementById("editDate").value,
+    startTime: document.getElementById("editStartTime").value,
+    people: document.getElementById("editPeople").value,
+    type: document.getElementById("editType").value
+  };
+
+  const formData = new URLSearchParams();
+  formData.append("action", "editBooking");
+  formData.append("payload", JSON.stringify(payload));
+
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+    body: formData.toString()
+  })
+  .then(res => res.json())
+  .then(res => {
+    if (res.ok) {
+      showToast("แก้ไขข้อมูลเรียบร้อยแล้ว", "success");
+      closeEditModal();
+      loadBookings();
+    } else {
+      showToast("แก้ไขไม่สำเร็จ", "error");
+    }
+  })
+  .catch(err => {
+    showToast("เกิดข้อผิดพลาด: " + err.message, "error");
+  });
+}
 
 function approve(id){
- updateStatus(id, "อนุมัติ", "อนุมัติรายการ " + id + " แล้ว");
+  updateStatus(id, "อนุมัติ", "อนุมัติรายการ " + id + " และแจ้งเข้า LINE เรียบร้อยแล้ว");
 }
 
 function reject(id){
- updateStatus(id, "ไม่อนุมัติ", "ปฏิเสธรายการ " + id + " แล้ว");
+  updateStatus(id, "ไม่อนุมัติ", "ปฏิเสธรายการ " + id + " และแจ้งเข้า LINE เรียบร้อยแล้ว");
 }
 
 function updateStatus(id, status, successMessage){
+  const formData = new URLSearchParams();
+  formData.append("action", "updateStatus");
+  formData.append("payload", JSON.stringify({ id: id, status: status }));
 
-  google.script.run
-  .withSuccessHandler(function(){
-
-    showToast(successMessage, "success");
-    loadBookings();
-
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+    body: formData.toString()
   })
-  .withFailureHandler(function(err){
-
+  .then(res => res.json())
+  .then(res => {
+    if (res.ok) {
+      showToast(successMessage, "success");
+      loadBookings();
+    } else {
+      showToast("อัปเดตไม่สำเร็จ", "error");
+    }
+  })
+  .catch(err => {
     showToast("อัปเดตไม่สำเร็จ: " + err.message, "error");
-
-  })
-  .updateBookingStatus(id, status);
-
+  });
 }
 
-// =================================
-// ลบ Booking (ผ่าน modal ยืนยัน)
-// =================================
-
 function askDelete(id){
-
   pendingDeleteId = id;
   document.getElementById("modalMessage").innerText =
     "รายการ " + id + " จะถูกลบออกจากระบบถาวร และไม่สามารถย้อนกลับได้";
   document.getElementById("confirmModal").classList.add("show");
-
 }
 
 function closeModal(){
@@ -746,50 +1128,42 @@ function closeModal(){
 }
 
 document.getElementById("modalConfirmBtn").addEventListener("click", function(){
-
-  if(!pendingDeleteId) return;
+  if (!pendingDeleteId) return;
 
   const id = pendingDeleteId;
   closeModal();
 
-  google.script.run
-  .withSuccessHandler(function(){
+  const formData = new URLSearchParams();
+  formData.append("action", "deleteBooking");
+  formData.append("payload", JSON.stringify({ id: id }));
 
-    showToast("ลบรายการ " + id + " แล้ว", "success");
-    loadBookings();
-
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+    body: formData.toString()
   })
-  .withFailureHandler(function(err){
-
+  .then(res => res.json())
+  .then(res => {
+    if (res.ok) {
+      showToast("ลบรายการ " + id + " แล้ว", "success");
+      loadBookings();
+    } else {
+      showToast("ลบไม่สำเร็จ", "error");
+    }
+  })
+  .catch(err => {
     showToast("ลบไม่สำเร็จ: " + err.message, "error");
-
-  })
-  .deleteBooking(id);
-
+  });
 });
 
-// =================================
-// แปลงวันที่
-// =================================
-
 function formatDate(date){
-
-  if(!date){
-    return "-";
-  }
-
+  if (!date) return "-";
   const d = new Date(date);
-
-  if(isNaN(d.getTime())){
-    return date;
-  }
-
+  if (isNaN(d.getTime())) return date;
   return d.toLocaleDateString("th-TH", { day: "numeric", month: "short", year: "numeric" });
-
 }
 
 </script>
 
 </body>
-
 </html>
