@@ -5,7 +5,7 @@
 
 const SPREADSHEET_ID = "1gBKYqxArNntcKlUIv81klwJe16r4d6Dpc8EiVvCkS5E";
 const SHEET_NAME = "Bookings";
-const LINE_CHANNEL_ACCESS_TOKEN = "b2rEcN2B1ed6DT04wvV2RzOdyENVhPqvsvG/gqbjLnjz+5rW/upMRNuAgBMBJ06Wy0bjw0JZ72T2mnKZvd2heolWnPzbmdxcQFGj4wJSY0eEUBW/CEDyKhLy7VmLaautxztLl/R77p+TVkSWjYdrkwdB04t89/1O/w1cDnyilFU=";
+const LINE_CHANNEL_ACCESS_TOKEN = "9/64Pbwp+aVE4piPq6ZAe2qPuGqPTZNBRNWJP5zdfzB5bm9DMzO4o6Hfj6RLDAUwYwTYAGLrfnUq138o1+W0FQUF7po/wuKKMbpUDyjTCVknFQZ/vaSzVYyHiJJEaVUPxta+Wxv6VeuogYc0L821aAdB04t89/1O/w1cDnyilFU=";
 
 function doGet(e) {
   var action = e && e.parameter ? e.parameter.action : "";
@@ -31,7 +31,6 @@ function doPost(e) {
   var result = {};
   try {
     var data;
-    // ดักรับข้อมูลทั้งแบบ JSON Payload และ Form-urlencoded (แก้ CORS)
     if (e.parameter && e.parameter.action) {
       data = {
         action: e.parameter.action,
@@ -64,7 +63,6 @@ function doPost(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// 1. ฟังก์ชันแก้ไขข้อมูลการจอง (ไม่ส่ง LINE)
 function editBookingData(payload) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = ss.getSheetByName(SHEET_NAME);
@@ -72,28 +70,26 @@ function editBookingData(payload) {
 
   for (let i = 1; i < data.length; i++) {
     if (data[i][0] == payload.id) {
-      sheet.getRange(i + 1, 2).setValue(payload.name);       // B: Name
-      sheet.getRange(i + 1, 3).setValue(payload.position);   // C: Position
-      sheet.getRange(i + 1, 4).setValue(payload.room);       // D: Room
-      sheet.getRange(i + 1, 5).setValue(payload.building);   // E: Building
-      sheet.getRange(i + 1, 6).setValue(payload.date);       // F: Date
-      sheet.getRange(i + 1, 7).setValue(payload.startTime);  // G: StartTime
-      sheet.getRange(i + 1, 8).setValue(payload.people);     // H: People
-      sheet.getRange(i + 1, 10).setValue(payload.type);      // J: Type
+      sheet.getRange(i + 1, 2).setValue(payload.name);
+      sheet.getRange(i + 1, 3).setValue(payload.position);
+      sheet.getRange(i + 1, 4).setValue(payload.room);
+      sheet.getRange(i + 1, 5).setValue(payload.building);
+      sheet.getRange(i + 1, 6).setValue(payload.date);
+      sheet.getRange(i + 1, 7).setValue(payload.startTime);
+      sheet.getRange(i + 1, 8).setValue(payload.people);
+      sheet.getRange(i + 1, 10).setValue(payload.type);
       return true;
     }
   }
   return false;
 }
 
-// 2. ฟังก์ชันอัปโหลดรูปภาพลง Google Drive และบันทึกลงคอลัมน์ K
 function uploadMeetingImageToColumnK(payload) {
   try {
     const id = String(payload.id).trim();
     const base64Data = payload.base64Data;
     const fileName = payload.fileName || `Meeting_${id}.jpg`;
 
-    // จัดการโฟลเดอร์ใน Google Drive
     let folder;
     const folders = DriveApp.getFoldersByName("PRTC_Meeting_Photos");
     if (folders.hasNext()) {
@@ -112,7 +108,6 @@ function uploadMeetingImageToColumnK(payload) {
     
     const viewUrl = file.getUrl();
 
-    // ค้นหาแถวและบันทึกลิงก์เข้าคอลัมน์ K (index 11)
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName(SHEET_NAME);
     const data = sheet.getDataRange().getValues();
@@ -121,9 +116,9 @@ function uploadMeetingImageToColumnK(payload) {
       const sheetId = String(data[i][0]).trim();
       if (sheetId === id) {
         const cell = sheet.getRange(i + 1, 11); // คอลัมน์ K
-        cell.setNumberFormat("@");             // ตั้งค่ารูปแบบเป็น Plain Text
-        cell.setValue(String(viewUrl));        // วาง URL ลงในคอลัมน์ K
-        SpreadsheetApp.flush();                // บังคับบันทึกข้อมูลเข้า Sheet ทันที
+        cell.setNumberFormat("@");
+        cell.setValue(String(viewUrl));
+        SpreadsheetApp.flush();
         return { ok: true, status: "success", fileUrl: viewUrl };
       }
     }
@@ -134,7 +129,6 @@ function uploadMeetingImageToColumnK(payload) {
   }
 }
 
-// 3. ฟังก์ชันเปลี่ยนสถานะ (อนุมัติ/ไม่อนุมัติ) -> ส่งการแจ้งเตือนเข้า LINE
 function updateBookingStatus(id, status) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = ss.getSheetByName(SHEET_NAME);
@@ -154,9 +148,6 @@ function updateBookingStatus(id, status) {
   return false;
 }
 
-// ======================================
-// LINE Notification Functions
-// ======================================
 const THAI_MONTHS = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
 
 function formatThaiDate(value) {
