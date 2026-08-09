@@ -5,7 +5,7 @@
 
 const SPREADSHEET_ID = "1gBKYqxArNntcKlUIv81klwJe16r4d6Dpc8EiVvCkS5E";
 const SHEET_NAME = "Bookings";
-const LINE_CHANNEL_ACCESS_TOKEN = "9/64Pbwp+aVE4piPq6ZAe2qPuGqPTZNBRNWJP5zdfzB5bm9DMzO4o6Hfj6RLDAUwYwTYAGLrfnUq138o1+W0FQUF7po/wuKKMbpUDyjTCVknFQZ/vaSzVYyHiJJEaVUPxta+Wxv6VeuogYc0L821aAdB04t89/1O/w1cDnyilFU=";
+const LINE_CHANNEL_ACCESS_TOKEN = "b2rEcN2B1ed6DT04wvV2RzOdyENVhPqvsvG/gqbjLnjz+5rW/upMRNuAgBMBJ06Wy0bjw0JZ72T2mnKZvd2heolWnPzbmdxcQFGj4wJSY0eEUBW/CEDyKhLy7VmLaautxztLl/R77p+TVkSWjYdrkwdB04t89/1O/w1cDnyilFU=";
 
 function doGet(e) {
   var action = e && e.parameter ? e.parameter.action : "";
