@@ -129,23 +129,29 @@ function uploadMeetingImageToColumnK(payload) {
   }
 }
 
+// 3. ฟังก์ชันเปลี่ยนสถานะ (อนุมัติ/ไม่อนุมัติ) -> ส่งการแจ้งเตือนเข้า LINE
 function updateBookingStatus(id, status) {
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  const sheet = ss.getSheetByName(SHEET_NAME);
-  const data = sheet.getDataRange().getValues();
+  try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheet = ss.getSheetByName(SHEET_NAME);
+    const data = sheet.getDataRange().getValues();
 
-  for (let i = 1; i < data.length; i++) {
-    if (data[i][0] == id) {
-      sheet.getRange(i + 1, 9).setValue(status);
-      sheet.getRange(i + 1, 12).setValue(new Date());
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][0]).trim() === String(id).trim()) {
+        sheet.getRange(i + 1, 9).setValue(status);       // คอลัมน์ I = สถานะ
+        sheet.getRange(i + 1, 12).setValue(new Date());  // คอลัมน์ L = เวลาอัปเดต
 
-      if (status === "อนุมัติ") sendApproveLine(data[i]);
-      if (status === "ไม่อนุมัติ") sendRejectLine(data[i]);
+        // ส่งการแจ้งเตือนเข้า LINE
+        if (status === "อนุมัติ") sendApproveLine(data[i]);
+        if (status === "ไม่อนุมัติ") sendRejectLine(data[i]);
 
-      return true;
+        return true;
+      }
     }
+    return false;
+  } catch (err) {
+    return false;
   }
-  return false;
 }
 
 const THAI_MONTHS = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
